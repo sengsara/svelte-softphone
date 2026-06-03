@@ -10,7 +10,6 @@
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
     "storybook": "storybook dev -p 6006",
-    "storybook:dev": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
   "devDependencies": {
@@ -34,7 +33,6 @@
     "jiti": "^2.7.0",
     "playwright": "^1.60.0",
     "storybook": "^10.4.2",
-    "storybook:dev": "storybook dev -p 6006",
     "svelte": "^5.0.0",
     "svelte-check": "^4.0.0",
     "svelte-eslint-parser": "^1.7.1",
