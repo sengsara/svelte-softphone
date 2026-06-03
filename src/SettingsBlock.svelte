@@ -26,7 +26,7 @@
         type="checkbox"
         class="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
         bind:checked={localStatePhone.connectOnStart}
-        on:checkedchange={handleConnectOnStart}
+        oncheckedchange={handleConnectOnStart}
       />
     </div>
     
@@ -43,7 +43,7 @@
         type="checkbox"
         class="w-5 h-5 text-green-500 rounded focus:ring-green-500"
         bind:checked={localStatePhone.connectedPhone}
-        on:checkedchange={() => handleConnectPhone(null, true)}
+        oncheckedchange={() => handleConnectPhone(null, true)}
       />
     </div>
   </div>
@@ -63,7 +63,7 @@
         type="checkbox"
         class="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
         bind:checked={localStatePhone.notifications}
-        on:checkedchange={handleNotifications}
+        oncheckedchange={handleNotifications}
       />
     </div>
   </div>
@@ -90,7 +90,7 @@
         step="0.05"
         class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
         bind:value={localStatePhone.callVolume}
-        on:input={(e) => handleSettingsSlider('callVolume', parseFloat(e.target.value))}
+        oninput={(e) => handleSettingsSlider('callVolume', parseFloat(e.target.value))}
       />
     </div>
     
@@ -112,7 +112,7 @@
         step="0.05"
         class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
         bind:value={localStatePhone.ringVolume}
-        on:input={(e) => handleSettingsSlider('ringVolume', parseFloat(e.target.value))}
+        oninput={(e) => handleSettingsSlider('ringVolume', parseFloat(e.target.value))}
       />
     </div>
   </div>

@@ -25,5 +25,8 @@
     "typescript": "^5.0.0",
     "typescript-eslint": "^8.60.1",
     "vite": "^5.4.0"
+  },
+  "dependencies": {
+    "jssip": "^3.13.8"
   }
 }

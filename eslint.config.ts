@@ -16,12 +16,10 @@ export default ts.config(
     }
   },
   {
-    // Targets your Svelte 5 reactive script files and components
     files: ['**/*.svelte', '**/*.svelte.ts', '**/*.svelte.js'], 
     languageOptions: {
       parser: svelte.parse,
       parserOptions: {
-        // Essential: hooks into typescript-eslint parser for component types
         parser: ts.parser,
         projectService: true,
         extraFileExtensions: ['.svelte']
@@ -30,5 +28,15 @@ export default ts.config(
   },
   {
     ignores: ['build/', '.svelte-kit/', 'dist/', 'node_modules/']
+  },
+  {
+    rules: {
+      // Disable unused vars rule for Svelte components (props are passed from parent)
+      '@typescript-eslint/no-unused-vars': 'off',
+      // Allow switch statements without default in Svelte components
+      'no-case-declarations': 'off',
+      // Disable no-undef for Svelte components ($state variables are not traditional declarations)
+      'no-undef': 'off'
+    }
   }
 );

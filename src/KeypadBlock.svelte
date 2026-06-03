@@ -20,22 +20,6 @@
     inCall = channel.inCall;
   });
   
-  // Keypad numbers
-  const keypadNumbers = [
-    { key: '1', label: '1' },
-    { key: '2', label: '2' },
-    { key: '3', label: '3' },
-    { key: '4', label: '4' },
-    { key: '5', label: '5' },
-    { key: '6', label: '6' },
-    { key: '7', label: '7' },
-    { key: '8', label: '8' },
-    { key: '9', label: '9' },
-    { key: '*', label: '*' },
-    { key: '0', label: '0' },
-    { key: '#', label: '#' }
-  ];
-  
   // Expose handlePressKey to parent
   let handlePressKey = (key) => {
     // Handle press key action
@@ -85,12 +69,12 @@
 
   <!-- Keypad -->
   <div class="grid grid-cols-3 gap-4">
-    {#each keypadNumbers as num}
+    {#each ['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'] as key (key)}
       <button
         class="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-700 text-2xl font-semibold text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-        onclick={() => handlePressKey(num.key)}
+        onclick={() => handlePressKey(key)}
       >
-        {num.label}
+        {key}
       </button>
     {/each}
   </div>

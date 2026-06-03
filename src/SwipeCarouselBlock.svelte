@@ -40,38 +40,21 @@
   $effect(() => {
     const displayCalls = localStatePhone.displayCalls || [];
     const interval = setInterval(() => {
-      for (const [key, displayCall] of displayCalls.entries()) {
+      for (let i = 0; i < displayCalls.length; i++) {
+        const displayCall = displayCalls[i];
         if (displayCall.inCall) {
-          if (!displayCall.inAnswer && !durations[key].ringDurationActive) {
-            setDurations((oldDurations) => ({
-              ...oldDurations,
-              [key]: {
-                ...oldDurations[key],
-                ringDuration: oldDurations[key].ringDuration + 1,
-              }
-            }));
-          } else if (displayCall.inAnswer && !durations[key].callDurationActive) {
-            setDurations((oldDurations) => ({
-              ...oldDurations,
-              [key]: {
-                ...oldDurations[key],
-                callDuration: oldDurations[key].callDuration + 1,
-                ringDurationActive: false
-              }
-            }));
+          if (!displayCall.inAnswer && !durations[i].ringDurationActive) {
+            durations[i].ringDuration += 1;
+          } else if (displayCall.inAnswer && !durations[i].callDurationActive) {
+            durations[i].callDuration += 1;
+            durations[i].ringDurationActive = false;
           }
         } else {
-          if (durations[key].callDuration !== 0 || durations[key].ringDuration !== 0) {
-            setDurations((oldDurations) => ({
-              ...oldDurations,
-              [key]: {
-                ...oldDurations[key],
-                callDuration: 0,
-                callDurationActive: false,
-                ringDuration: 0,
-                ringDurationActive: false
-              }
-            }));
+          if (durations[i].callDuration !== 0 || durations[i].ringDuration !== 0) {
+            durations[i].callDuration = 0;
+            durations[i].callDurationActive = false;
+            durations[i].ringDuration = 0;
+            durations[i].ringDurationActive = false;
           }
         }
       }
@@ -140,7 +123,7 @@
   <!-- Tab Content with Horizontal Scroll -->
   <div class="overflow-x-auto overflow-y-hidden no-scrollbar" style="scroll-snap-type: x mandatory;">
     <div class="flex space-x-0 min-w-max">
-      {#each Array.from({ length: 3 }).map((_, i) => i) as index}
+{#each Array.from({ length: 3 }).map((_, i) => i) as index (index)}
         <div
           id={`full-width-tabpanel-${index}`}
           role="tabpanel"
@@ -152,7 +135,7 @@
           }`}
           style="scroll-snap-align: start;"
         >
-          {#if localStatePhone.displayCalls?.hasOwnProperty(index)}
+          {#if Object.hasOwn(localStatePhone.displayCalls || {}, index)}
             {#if localStatePhone.displayCalls[index].inCall === true}
               {#if localStatePhone.displayCalls[index].inAnswer === true}
                 {#if localStatePhone.displayCalls[index].hold === true}
