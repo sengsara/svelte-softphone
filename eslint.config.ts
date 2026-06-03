@@ -1,3 +1,6 @@
+// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
+import storybook from "eslint-plugin-storybook";
+
 import js from '@eslint/js';
 import ts from 'typescript-eslint';
 import svelte from 'eslint-plugin-svelte';
@@ -38,5 +41,6 @@ export default ts.config(
       // Disable no-undef for Svelte components ($state variables are not traditional declarations)
       'no-undef': 'off'
     }
-  }
+  },
+  storybook.configs["flat/recommended"]
 );
