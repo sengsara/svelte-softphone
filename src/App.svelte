@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { CallsFlowControl } from './lib/CallsFlowControl';
-  import type { SipConfig, LocalStatePhone, DisplayCall } from './lib/types';
+  import { CallsFlowControl, type Call } from './lib/CallsFlowControl';
+  import type { SipConfig, LocalStatePhone, DisplayCall, SoftPhoneTestBridge } from './lib/types';
   import SoftPhone from './SoftPhone.svelte';
 
   // JSSIP configuration
@@ -32,25 +32,126 @@
   // Dial state
   let dialState = $state('');
 
+  // Derive the displayed remote number from a JsSIP session
+  function remoteNumber(call: Call): string {
+    const identity = call.remote_identity as
+      | { uri?: { user?: string }; display_name?: string }
+      | undefined;
+    return identity?.uri?.user ?? identity?.display_name ?? 'Unknown';
+  }
+
+  // Insert or update a call in the display list
+  function upsertCall(partial: Partial<DisplayCall> & { sessionId: string }): void {
+    const exists = localStatePhone.displayCalls.some((c) => c.sessionId === partial.sessionId);
+    if (exists) {
+      localStatePhone.displayCalls = localStatePhone.displayCalls.map((c) =>
+        c.sessionId === partial.sessionId ? { ...c, ...partial } : c
+      );
+    } else {
+      localStatePhone.displayCalls = [
+        ...localStatePhone.displayCalls,
+        { id: partial.sessionId, ...partial } as DisplayCall
+      ];
+    }
+  }
+
+  // Remove a call from the display list
+  function removeCall(sessionId: string): void {
+    localStatePhone.displayCalls = localStatePhone.displayCalls.filter(
+      (c) => c.sessionId !== sessionId
+    );
+  }
+
+  // Wire engine call actions into UI state
+  flowRoute.onCallActionConnection = (action, ...args) => {
+    const sessionId = typeof args[0] === 'string' ? args[0] : '';
+    switch (action) {
+      case 'incomingCall': {
+        const call = args[0] as Call;
+        upsertCall({
+          sessionId: call.id,
+          callNumber: remoteNumber(call),
+          callInfo: 'Incoming Call',
+          info: `from ${remoteNumber(call)}`,
+          direction: 'incoming',
+          inCall: false,
+          inAnswer: false,
+          hold: false,
+          muted: 0
+        });
+        break;
+      }
+      case 'outgoingCall': {
+        const call = args[0] as Call;
+        upsertCall({
+          sessionId: call.id,
+          callNumber: remoteNumber(call),
+          callInfo: 'Calling...',
+          info: '',
+          direction: 'outgoing',
+          inCall: true,
+          inAnswer: false,
+          hold: false,
+          muted: 0
+        });
+        break;
+      }
+      case 'callAccepted':
+        upsertCall({
+          sessionId,
+          inCall: true,
+          inAnswer: true,
+          hold: false,
+          callInfo: 'Active Call'
+        });
+        break;
+      case 'hold':
+        upsertCall({ sessionId, hold: true, callInfo: 'On Hold' });
+        break;
+      case 'unhold':
+        upsertCall({ sessionId, hold: false, callInfo: 'Active Call' });
+        break;
+      case 'mute':
+      case 'muted':
+        upsertCall({ sessionId, muted: 1, callInfo: 'Muted' });
+        break;
+      case 'unmute':
+      case 'unmuted':
+        upsertCall({ sessionId, muted: 0, callInfo: 'Active Call' });
+        break;
+      case 'callEnded':
+        removeCall(sessionId);
+        break;
+      default:
+        break;
+    }
+  };
+
+  // Wire engine connection events into UI state
+  flowRoute.onEngineEvent = (event) => {
+    if (event === 'connected' || event === 'registered') {
+      localStatePhone.connectedPhone = true;
+    } else if (
+      event === 'disconnected' ||
+      event === 'unregistered' ||
+      event === 'registrationFailed'
+    ) {
+      localStatePhone.connectedPhone = false;
+    }
+  };
+
   // Set the active channel
   function setActiveChannel(channel: number): void {
     activeChannel = channel;
   }
 
-  // Connect to server
-  function connectToServer(): void {
-    if (config.domain && config.secret) {
-      flowRoute.config = { ...config };
-      flowRoute.init();
-      flowRoute.start();
-    }
-  }
-
   // Handle call
   function handleCall(event?: unknown): void {
     const target = (event as { target?: HTMLInputElement } | undefined)?.target;
-    const number = target?.value ?? (typeof event === 'string' ? event : '');
+    const fromEvent = target?.value ?? (typeof event === 'string' ? event : '');
+    const number = fromEvent || dialState;
     if (number) {
+      dialState = '';
       flowRoute.call(number);
     }
   }
@@ -83,10 +184,11 @@
   // Handle call transfer
   function handleCallTransfer(transferedNumber?: unknown): void {
     const number = dialState || (typeof transferedNumber === 'string' ? transferedNumber : '');
-    if (!number) return;
+    const activeId = localStatePhone.displayCalls[activeChannel]?.sessionId;
+    if (!number || !activeId) return;
 
     localStatePhone.displayCalls = localStatePhone.displayCalls.map((a: DisplayCall) =>
-      a.id === activeChannel
+      a.sessionId === activeId
         ? {
             ...a,
             transferNumber: number,
@@ -111,7 +213,7 @@
     switch (event) {
       case 'transfer':
         localStatePhone.displayCalls = calls.map((a: DisplayCall) =>
-          a.id === activeChannel
+          a.sessionId === activeId
             ? {
                 ...a,
                 transferNumber: target,
@@ -194,7 +296,16 @@
 
   // Handle connect phone
   function handleConnectPhone(connected?: unknown): void {
-    localStatePhone.connectedPhone = Boolean(connected);
+    const on = Boolean(connected);
+    localStatePhone.connectedPhone = on;
+    if (on) {
+      flowRoute.config = { ...config };
+      flowRoute.init();
+      flowRoute.start();
+    } else {
+      flowRoute.stop();
+      localStatePhone.connectedPhone = false;
+    }
   }
 
   // Handle connect on start
@@ -220,6 +331,16 @@
   // Handle user presence status
   function handleUserPresenceStatus(_status?: unknown): void {
     // Update presence status
+  }
+
+  // Test-only bridge (available only when Vite runs in "e2e" mode)
+  if (import.meta.env.MODE === 'e2e') {
+    const bridge: SoftPhoneTestBridge = {
+      transfer: (n?: string) => handleCallTransfer(n),
+      attendedTransfer: (event: string, n?: string) => handleCallAttendedTransfer(event, n),
+      state: localStatePhone
+    };
+    window.__softphone = bridge;
   }
 </script>
 

@@ -30,7 +30,15 @@ export default ts.config(
     }
   },
   {
-    ignores: ['build/', '.svelte-kit/', 'dist/', 'storybook-static/', 'node_modules/']
+    ignores: [
+      'build/',
+      '.svelte-kit/',
+      'dist/',
+      'storybook-static/',
+      'test-results/',
+      'playwright-report/',
+      'node_modules/'
+    ]
   },
   {
     rules: {

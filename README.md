@@ -40,13 +40,16 @@ svelte-softphone/
 │   ├── SettingsBlock.svelte     # Volume, notifications, dark mode
 │   ├── SwipeCarouselBlock.svelte # Swipeable call tab carousel
 │   ├── stories/                 # Storybook component stories
+│   ├── test/mocks/jssip.ts      # JsSIP mock used by the e2e suite
 │   ├── lib/
 │   │   ├── CallsFlowControl.ts  # JSSIP engine — call lifecycle & state
 │   │   ├── constants.ts         # Debug logging utilities
 │   │   └── types.ts             # Shared types + global type declarations
 │   ├── main.ts                  # App entry point
 │   └── app.css                  # Global styles
+├── e2e/                         # Playwright end-to-end tests
 ├── .storybook/                  # Storybook configuration
+├── playwright.config.ts         # Playwright configuration
 ├── vite.config.ts               # Vite + Vitest + Storybook test config
 ├── tailwind.config.js           # Tailwind CSS 4 config
 └── package.json
@@ -188,17 +191,41 @@ Place these audio files in your project assets for call sounds:
 
 ## 🧪 Testing
 
+### End-to-end tests (Playwright)
+
+The e2e suite runs the real app in a browser with the JsSIP layer swapped for a
+controllable mock (`src/test/mocks/jssip.ts`, aliased in `vite.config.ts` when
+Vite runs in `e2e` mode), so call flows can be exercised without a SIP server.
+Tests live in `e2e/` and cover: app shell, connection lifecycle, incoming /
+outgoing calls, answer / reject, mute, hold / resume, blind and attended
+transfer, settings, status indicators, and the channel carousel.
+
 ```bash
-# Run Storybook with Vitest browser tests
-npm run build-storybook
+# Install the Chromium browser once
+npm run e2e:install
+
+# Run the suite (boots the app automatically)
+npm run e2e
+
+# Interactive / headed modes
+npm run e2e:ui
+npm run e2e:headed
+```
+
+### Static checks
+
+```bash
+# Run type checking
+npm run check
 
 # Run linting
 npm run lint
 npm run lint:fix
 
-# Run type checking
-npm run check
+# Build Storybook
+npm run build-storybook
 ```
+
 
 ## 🌐 Browser Support
 

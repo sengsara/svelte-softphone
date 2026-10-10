@@ -62,11 +62,14 @@
     <!-- Internet Status -->
     <div class="flex justify-between items-center">
       <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Internet</span>
-      <div class={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${
-        internetConnected 
-          ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' 
-          : 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
-      }`}>
+      <div
+        data-testid="status-internet"
+        class={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${
+          internetConnected
+            ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
+            : 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
+        }`}
+      >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
         </svg>
@@ -77,13 +80,16 @@
     <!-- Softphone Status -->
     <div class="flex justify-between items-center">
       <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Softphone Connection</span>
-      <div class={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${
-        getSoftphoneStatusChip().color === 'red'
-          ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
-          : getSoftphoneStatusChip().color === 'green'
-          ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
-          : 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
-      }`}>
+      <div
+        data-testid="status-softphone"
+        class={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${
+          getSoftphoneStatusChip().color === 'red'
+            ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
+            : getSoftphoneStatusChip().color === 'green'
+            ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
+            : 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
+        }`}
+      >
         {#if getSoftphoneStatusChip().icon === 'online-icon'}
           <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />

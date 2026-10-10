@@ -37,9 +37,10 @@
       </div>
       <input
         type="checkbox"
+        aria-label="Auto-Connect"
         class="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
-        bind:checked={localStatePhone.connectOnStart}
-        onchange={() => handleConnectOnStart?.(localStatePhone.connectOnStart)}
+        checked={localStatePhone.connectOnStart}
+        onchange={(e) => handleConnectOnStart?.(e.currentTarget.checked)}
       />
     </div>
 
@@ -54,9 +55,10 @@
       </div>
       <input
         type="checkbox"
+        aria-label="Softphone connection"
         class="w-5 h-5 text-green-500 rounded focus:ring-green-500"
-        bind:checked={localStatePhone.connectedPhone}
-        onchange={() => handleConnectPhone?.(localStatePhone.connectedPhone)}
+        checked={localStatePhone.connectedPhone}
+        onchange={(e) => handleConnectPhone?.(e.currentTarget.checked)}
       />
     </div>
   </div>
@@ -74,9 +76,10 @@
       </div>
       <input
         type="checkbox"
+        aria-label="Notifications"
         class="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
-        bind:checked={localStatePhone.notifications}
-        onchange={() => handleNotifications?.(localStatePhone.notifications)}
+        checked={localStatePhone.notifications}
+        onchange={(e) => handleNotifications?.(e.currentTarget.checked)}
       />
     </div>
   </div>
@@ -98,6 +101,7 @@
       </div>
       <input
         type="range"
+        aria-label="Call Audio Volume"
         min="0"
         max="1"
         step="0.05"
@@ -120,6 +124,7 @@
       </div>
       <input
         type="range"
+        aria-label="Ringtone Volume"
         min="0"
         max="1"
         step="0.05"

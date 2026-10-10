@@ -14,7 +14,10 @@
 <div class="space-y-2">
   {#each calls as call (call.sessionId)}
     {@const parts = (call.callNumber ?? '').split('-')}
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-3">
+    <div
+      data-testid="call-queue-item"
+      class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-3"
+    >
       <div class="mb-2 pb-1 border-b border-gray-200 dark:border-gray-700">
         {#if call.callNumber}
           <div class="flex items-center mb-1">

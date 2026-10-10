@@ -111,7 +111,18 @@ export class CallsFlowControl {
         'connecting',
       ];
       events.forEach((event) => {
-        this.phone?.on(event, (data: unknown) => this.onEngineEvent?.(event, data));
+        this.phone?.on(event, (data: unknown) => {
+          if (event === 'connected' || event === 'registered') {
+            this.connectedPhone = true;
+          } else if (
+            event === 'disconnected' ||
+            event === 'unregistered' ||
+            event === 'registrationFailed'
+          ) {
+            this.connectedPhone = false;
+          }
+          this.onEngineEvent?.(event, data);
+        });
       });
 
       this.initiated = true;

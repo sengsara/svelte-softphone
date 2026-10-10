@@ -10,11 +10,16 @@
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "e2e": "playwright test",
+    "e2e:headed": "playwright test --headed",
+    "e2e:ui": "playwright test --ui",
+    "e2e:install": "playwright install chromium"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^5.2.1",
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.60.0",
     "@storybook/addon-a11y": "^10.4.2",
     "@storybook/addon-docs": "^10.4.2",
     "@storybook/addon-svelte-csf": "^5.1.2",

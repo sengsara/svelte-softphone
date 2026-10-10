@@ -54,9 +54,9 @@
     handleLauncherToggle: propHandleLauncherToggle,
     handleSettingsOpen: propHandleSettingsOpen,
     handleConnectPhone: propHandleConnectPhone,
-    handleConnectOnStart: _propHandleConnectOnStart,
-    handleNotifications: _propHandleNotifications,
-    handleSettingsSlider: _propHandleSettingsSlider,
+    handleConnectOnStart: propHandleConnectOnStart,
+    handleNotifications: propHandleNotifications,
+    handleSettingsSlider: propHandleSettingsSlider,
     handleUserPresenceStatus: _propHandleUserPresenceStatus
   }: Props = $props();
 
@@ -89,36 +89,6 @@
   // Handle settings open
   function handleSettingsOpen(): void {
     // Open settings modal
-  }
-
-  // Handle connect phone
-  function handleConnectPhone(connected?: unknown): void {
-    localStatePhone.connectedPhone = Boolean(connected);
-  }
-
-  // Handle connect on start
-  function handleConnectOnStart(checked?: unknown): void {
-    localStatePhone.connectOnStart = Boolean(checked);
-  }
-
-  // Handle notifications
-  function handleNotifications(checked?: unknown): void {
-    localStatePhone.notifications = Boolean(checked);
-  }
-
-  // Handle settings slider (volume)
-  function handleSettingsSlider(type?: unknown, value?: unknown): void {
-    const volume = typeof value === 'number' ? value : Number(value);
-    if (type === 'callVolume') {
-      localStatePhone.callVolume = volume;
-    } else if (type === 'ringVolume') {
-      localStatePhone.ringVolume = volume;
-    }
-  }
-
-  // Handle user presence status
-  function handleUserPresenceStatus(_status?: unknown): void {
-    // Update presence status
   }
 </script>
 
@@ -156,7 +126,7 @@
             <!-- Connect Button -->
             <button
               class="w-full py-2 rounded-lg font-medium transition-colors bg-green-500 hover:bg-green-600 text-white"
-              onclick={() => (propHandleConnectPhone ?? handleConnectPhone)(!localStatePhone.connectedPhone)}
+              onclick={() => propHandleConnectPhone?.(!localStatePhone.connectedPhone)}
             >
               {localStatePhone.connectedPhone ? 'Disconnect' : 'Connect'}
             </button>
@@ -222,10 +192,10 @@
 
           <SettingsBlock
             {localStatePhone}
-            handleConnectPhone={handleConnectPhone}
-            handleSettingsSlider={handleSettingsSlider}
-            handleConnectOnStart={handleConnectOnStart}
-            handleNotifications={handleNotifications}
+            handleConnectPhone={propHandleConnectPhone}
+            handleSettingsSlider={propHandleSettingsSlider}
+            handleConnectOnStart={propHandleConnectOnStart}
+            handleNotifications={propHandleNotifications}
             {handleDarkMode}
             {handleUserPresence}
           />

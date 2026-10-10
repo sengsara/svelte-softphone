@@ -50,8 +50,8 @@
         ? 'bg-green-500 hover:bg-green-600 text-white'
         : 'bg-gray-200 dark:bg-gray-700 text-gray-400'
     }`}
-    disabled={!inCall || hold}
-    onclick={() => hold && handleHold?.(activeChanel?.sessionId, false)}
+    disabled={!inCall}
+    onclick={() => handleHold?.(activeChanel?.sessionId, !hold)}
     aria-label={hold ? 'Resume Call' : 'Hold Call'}
   >
     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

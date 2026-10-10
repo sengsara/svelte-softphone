@@ -6,6 +6,10 @@ dist
 storybook-static
 .rpt2_cache
 
+# tests
+test-results
+playwright-report
+
 # misc
 .DS_Store
 .env

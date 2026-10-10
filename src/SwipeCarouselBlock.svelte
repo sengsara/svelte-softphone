@@ -142,6 +142,7 @@
         <div
           id={`full-width-tabpanel-${index}`}
           role="tabpanel"
+          data-testid={`carousel-panel-${index}`}
           aria-labelledby={`full-width-tab-${index}`}
           class={`w-full min-w-[300px] p-3 border-b-2 ${
             activeChannel === index
