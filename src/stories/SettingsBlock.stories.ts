@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/svelte-vite';
-import SettingsBlock from '../SettingsBlock.svelte';
+import SettingsBlock from '../lib/SettingsBlock.svelte';
 
 const meta = {
   title: 'SettingsBlock',

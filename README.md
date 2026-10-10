@@ -1,13 +1,17 @@
-# Svelte Softphone
+# @sengsara/svelte-softphone
 
 [![Svelte 5](https://img.shields.io/badge/Svelte-5-blue.svg)](https://svelte.dev)
 [![Vite](https://img.shields.io/badge/Vite-5-646CFF.svg)](https://vitejs.dev)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-06B6D4.svg)](https://tailwindcss.com)
 [![Storybook](https://img.shields.io/badge/Storybook-10-FF4785.svg)](https://storybook.js.org)
 
-A modern, self-contained SIP softphone component built with **Svelte 5** and **JSSIP** for reliable VoIP/WebRTC calling. Features a clean, responsive UI with multi-channel call support, dark mode, and optional floating launcher.
+A modern, self-contained **Svelte 5 softphone component package** built on
+[JsSIP](https://jssip.net/) for reliable WebRTC/VoIP calling. It ships a clean,
+responsive UI with multi-channel call support, dark mode, and an optional
+floating launcher.
 
-> Converted from the original [React Softphone](https://github.com/chamuridis/react-softphone) to Svelte 5.
+> Converted from the original [React Softphone](https://github.com/chamuridis/react-softphone)
+> to Svelte 5 and packaged as a reusable component library.
 
 ## 📱 Interface Preview
 
@@ -17,80 +21,51 @@ A modern, self-contained SIP softphone component built with **Svelte 5** and **J
 
 ## ✨ Features
 
-- ⚡ **Svelte 5 Runes** — Built with `$state`, `$derived`, `$effect`, and `$props`
-- 🔌 **Self-Contained** — JSSIP is the only runtime dependency; no UI framework bloat
-- 📦 **Vite Powered** — Lightning-fast HMR and production builds
-- 🎨 **Tailwind CSS 4** — Utility-first styling with dark mode support
-- 📞 **WebRTC VoIP** — Real SIP calling via JSSIP (JsSIP)
-- 🧪 **Storybook v10** — Component-level stories with Vitest + Playwright testing
-- 🎯 **Call Management** — Hold, transfer, mute, and attended transfer
-- 🖥️ **Modular Components** — Keypad, Call Queue, Status, Settings, Swipe Carousel
-- 🌙 **Dark Mode** — Toggle between light and dark themes
+- ⚡ **Svelte 5 runes** — `$state`, `$derived`, `$effect`, `$props`
+- 📦 **Tree-shakeable package** — built with `svelte-package`, ships `.svelte` + `.d.ts`
+- 📞 **WebRTC VoIP** — real SIP calling via JsSIP
+- 🎯 **Call management** — hold, mute, blind & attended transfer
+- 🎨 **Tailwind CSS 4** — styles compiled to a single importable stylesheet
+- 🖥️ **Modular components** — keypad, call queue, status, settings, carousel
+- 🌙 **Dark mode** and a configurable built-in launcher
 
-## 📦 Project Structure
-
-```
-svelte-softphone/
-├── src/
-│   ├── App.svelte              # Root app with SIP config and call routing
-│   ├── SoftPhone.svelte         # Main softphone panel & launcher
-│   ├── KeypadBlock.svelte       # Dial pad with call controls
-│   ├── CallQueue.svelte         # Incoming/pending call queue
-│   ├── StatusBlock.svelte       # Connection status indicator
-│   ├── SettingsBlock.svelte     # Volume, notifications, dark mode
-│   ├── SwipeCarouselBlock.svelte # Swipeable call tab carousel
-│   ├── stories/                 # Storybook component stories
-│   ├── test/mocks/jssip.ts      # JsSIP mock used by the e2e suite
-│   ├── lib/
-│   │   ├── CallsFlowControl.ts  # JSSIP engine — call lifecycle & state
-│   │   ├── constants.ts         # Debug logging utilities
-│   │   └── types.ts             # Shared types + global type declarations
-│   ├── main.ts                  # App entry point
-│   └── app.css                  # Global styles
-├── e2e/                         # Playwright end-to-end tests
-├── .storybook/                  # Storybook configuration
-├── playwright.config.ts         # Playwright configuration
-├── vite.config.ts               # Vite + Vitest + Storybook test config
-├── tailwind.config.js           # Tailwind CSS 4 config
-└── package.json
-```
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- Node.js 18+
-- A SIP/VoIP server (Asterisk, FreeSWITCH, etc.) with WebSocket transport
-
-### Installation
+## 📦 Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/wijayadi/svelte-softphone.git
-cd svelte-softphone
-
-# Install dependencies
-npm install
-
-# Start the development server
-npm run dev
-
-# Open Storybook for component exploration
-npm run storybook
-
-# Build for production
-npm run build
+npm install @sengsara/svelte-softphone
 ```
 
-### Basic Usage
+`jssip` and `svelte` are peer dependencies:
+
+```bash
+npm install jssip
+```
+
+## 🚀 Usage
+
+Import the components, the JsSIP engine, and the compiled stylesheet:
 
 ```svelte
-<script>
-  import SoftPhone from 'svelte-softphone';
-  import { CallsFlowControl } from 'svelte-softphone/lib/CallsFlowControl';
+<script lang="ts">
+  import {
+    SoftPhone,
+    CallsFlowControl,
+    type SipConfig,
+    type LocalStatePhone
+  } from '@sengsara/svelte-softphone';
+  import '@sengsara/svelte-softphone/style.css';
+
+  const config: SipConfig = {
+    domain: 'your-sip-server.com',
+    port: 5060,
+    wsUrl: 'wss://your-sip-server.com:8089/ws',
+    secret: 'your-sip-secret',
+    debug: false
+  };
 
   const flowRoute = new CallsFlowControl();
-  let localStatePhone = $state({
+
+  let localStatePhone = $state<LocalStatePhone>({
     displayCalls: [],
     connectedPhone: false,
     darkMode: false,
@@ -99,157 +74,151 @@ npm run build
     ringVolume: 0.8,
     connectOnStart: false
   });
+
   let activeChannel = $state(0);
-  let dialState = $state('');
-
-  let config = $state({
-    domain: 'your-sip-server.com',
-    port: 5060,
-    wsUrl: 'wss://your-sip-server.com:8089/ws',
-    secret: 'your-sip-secret',
-    debug: false
-  });
-
-  function connect() {
-    flowRoute.config = config;
-    flowRoute.init();
-    flowRoute.start();
-  }
 </script>
 
 <SoftPhone
-  flowRoute={flowRoute}
-  localStatePhone={localStatePhone}
-  activeChannel={activeChannel}
-  setActiveChannel={(v) => activeChannel = v}
-  handleCall={(number) => flowRoute.call(number)}
-  handleEndCall={(id) => flowRoute.hungup(id)}
-  handleHold={(id, h) => flowRoute.hold(id, h)}
+  {flowRoute}
+  {localStatePhone}
+  {activeChannel}
+  setActiveChannel={(v) => (activeChannel = v)}
+  handleCall={(n) => flowRoute.call(String(n))}
+  handleEndCall={(id) => flowRoute.hungup(String(id))}
   handleMicMute={() => flowRoute.setMicMuted()}
-  handleAnswer={(id) => flowRoute.answer(id)}
-  handleReject={(id) => flowRoute.hungup(id)}
+  handleAnswer={(id) => flowRoute.answer(String(id))}
+  handleReject={(id) => flowRoute.hungup(String(id))}
 />
-
-<button onclick={connect}>Connect to SIP</button>
 ```
 
-## 🔧 Props Reference
+### Styling
 
-### SoftPhone Component
+The package ships a pre-compiled Tailwind stylesheet. Import it once:
+
+```ts
+import '@sengsara/svelte-softphone/style.css';
+```
+
+Prefer generating styles yourself? Skip the stylesheet and add the package to
+your Tailwind source scan instead:
+
+```css
+@import 'tailwindcss';
+@source '../node_modules/@sengsara/svelte-softphone/dist';
+```
+
+## 🧩 Exports
+
+| Export | Description |
+|--------|-------------|
+| `SoftPhone` | Main softphone panel + optional launcher |
+| `KeypadBlock` | Dial pad and call controls |
+| `CallQueue` | Incoming/pending call queue |
+| `StatusBlock` | Internet + softphone connection status |
+| `SettingsBlock` | Volume, notifications, connection settings |
+| `SwipeCarouselBlock` | Swipeable multi-channel carousel |
+| `CallsFlowControl` | JsSIP engine (call lifecycle & state) |
+| `style.css` | Compiled component styles |
+
+### `SoftPhone` props
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `flowRoute` | `CallsFlowControl` | JSSIP engine instance |
-| `localStatePhone` | `object` | Phone state object (see below) |
-| `activeChannel` | `number` | Index of the currently active call |
-| `setActiveChannel` | `(v: number) => void` | Callback to set active channel |
-| `handleCall` | `(number: string) => void` | Initiate an outgoing call |
-| `handleEndCall` | `(sessionId: string) => void` | End a call by session ID |
-| `handleHold` | `(sessionId: string, hold: boolean) => void` | Hold or resume a call |
+| `flowRoute` | `CallsFlowControl` | JsSIP engine instance |
+| `localStatePhone` | `LocalStatePhone` | Phone state object |
+| `activeChannel` | `number` | Active channel index |
+| `setActiveChannel` | `(v: number) => void` | Set active channel |
+| `handleCall` | `(number) => void` | Place an outgoing call |
+| `handleEndCall` | `(sessionId) => void` | End a call |
+| `handleHold` | `(sessionId, hold) => void` | Hold/resume |
 | `handleMicMute` | `() => void` | Toggle microphone mute |
-| `handleAnswer` | `(sessionId: string) => void` | Answer an incoming call |
-| `handleReject` | `(sessionId: string) => void` | Reject an incoming call |
-| `handleCallTransfer` | `(number: string) => void` | Blind transfer a call |
-| `handleCallAttendedTransfer` | `(event, number) => void` | Attended transfer control |
-| `handleDarkMode` | `(checked: boolean) => void` | Toggle dark mode |
-| `handlePressKey` | `(key: string) => void` | Dial pad key press handler |
-| `builtInLauncher` | `boolean` | Show floating launcher button |
+| `handleAnswer` / `handleReject` | `(sessionId) => void` | Answer/reject an incoming call |
+| `builtInLauncher` | `boolean` | Show the floating launcher |
 
-### Local State Phone Object
+### `CallsFlowControl` (engine)
 
-| Field | Type | Default | Description |
-|-------|------|---------|-------------|
-| `displayCalls` | `Call[]` | `[]` | Array of displayed calls |
-| `connectedPhone` | `boolean` | `false` | SIP connection status |
-| `darkMode` | `boolean` | `false` | Dark theme toggle |
-| `notifications` | `boolean` | `true` | Browser notifications |
-| `callVolume` | `number` | `0.8` | Call audio volume (0–1) |
-| `ringVolume` | `number` | `0.8` | Ring tone volume (0–1) |
-| `connectOnStart` | `boolean` | `false` | Auto-connect on mount |
+| Method | Description |
+|--------|-------------|
+| `init()` / `start()` / `stop()` | Initialize and control the SIP stack |
+| `call(number)` | Place an outgoing call |
+| `answer(sessionId)` / `hungup(sessionId)` | Answer / terminate a call |
+| `hold(sessionId, hold)` | Hold or resume |
+| `setMicMuted()` / `sendDTMF(code)` | Mute toggle / DTMF tones |
+| `onCallActionConnection` / `onEngineEvent` | Callbacks for UI state wiring |
 
-### CallsFlowControl (JSSIP Engine)
+## 📁 Repository structure
 
-| Method | Params | Description |
-|--------|--------|-------------|
-| `init()` | — | Initialize the SIP user agent |
-| `start()` | — | Start the SIP stack |
-| `stop()` | — | Stop the SIP stack |
-| `call(number)` | `string` | Place an outgoing call |
-| `answer(sessionId)` | `string` | Answer an incoming call |
-| `hungup(sessionId)` | `string` | Terminate a call |
-| `hold(sessionId, hold)` | `string, boolean` | Hold/resume a call |
-| `setMicMuted()` | — | Toggle microphone mute |
-| `sendDTMF(code)` | `string` | Send DTMF tone |
-| `config` | `object` | SIP configuration setter |
+```
+.
+├── src/lib/                # The published component package
+│   ├── index.ts            # Public API
+│   ├── SoftPhone.svelte    # ... and the other components
+│   ├── CallsFlowControl.ts # JsSIP engine
+│   ├── types.ts            # Shared types
+│   └── tailwind.css        # Tailwind entry compiled to dist/style.css
+├── src/stories/            # Storybook stories
+├── examples/
+│   ├── svelte/             # Vite + Svelte example app
+│   └── sveltekit/          # SvelteKit example app
+├── e2e/                    # Playwright specs + `app/` harness + JsSIP mock
+├── .github/workflows/      # ci.yml (build/lint/test) + publish.yml (npm)
+├── svelte.config.js        # svelte-package config
+└── playwright.config.ts
+```
 
-## 🎵 Audio Files
+## 🛠 Development
 
-Place these audio files in your project assets for call sounds:
+```bash
+npm install
 
-- `ringing.ogg` — Incoming call ringtone
-- `ringback.ogg` — Outgoing call ringback tone
+# Build the package (svelte-package + Tailwind CSS)
+npm run build
+
+# Storybook (component docs)
+npm run storybook
+
+# Static checks
+npm run check
+npm run lint
+
+# End-to-end tests (builds the package, boots e2e/app)
+npm run e2e
+```
+
+Examples live in npm workspaces and consume the built package:
+
+```bash
+npm run build
+npm run dev -w @sengsara/svelte-softphone-example-svelte
+npm run dev -w @sengsara/svelte-softphone-example-sveltekit
+```
 
 ## 🧪 Testing
 
-### End-to-end tests (Playwright)
-
-The e2e suite runs the real app in a browser with the JsSIP layer swapped for a
-controllable mock (`src/test/mocks/jssip.ts`, aliased in `vite.config.ts` when
-Vite runs in `e2e` mode), so call flows can be exercised without a SIP server.
-Tests live in `e2e/` and cover: app shell, connection lifecycle, incoming /
-outgoing calls, answer / reject, mute, hold / resume, blind and attended
-transfer, settings, status indicators, and the channel carousel.
+The Playwright suite runs the real components in Chromium with the JsSIP layer
+replaced by a controllable mock (`e2e/mocks/jssip.ts`) via the harness app in
+`e2e/app`, so call flows are exercised without a SIP server. Coverage includes
+the app shell, connection lifecycle, incoming/outgoing calls, answer/reject,
+mute, hold/resume, blind and attended transfer, settings, status indicators, and
+the channel carousel.
 
 ```bash
-# Install the Chromium browser once
-npm run e2e:install
-
-# Run the suite (boots the app automatically)
-npm run e2e
-
-# Interactive / headed modes
-npm run e2e:ui
-npm run e2e:headed
+npm run e2e:install   # one-time: install Chromium
+npm run e2e           # run the suite
+npm run e2e:ui        # interactive mode
 ```
 
-### Static checks
+## 🚢 Releasing
 
-```bash
-# Run type checking
-npm run check
+Publishing is automated via `.github/workflows/publish.yml`:
 
-# Run linting
-npm run lint
-npm run lint:fix
+1. Bump the version in `package.json` and push a tag: `git tag v1.0.1 && git push --tags`.
+2. The workflow verifies (lint, types, e2e), builds, validates with
+   [`publint`](https://publint.dev/), and publishes `@sengsara/svelte-softphone`
+   to npm using the `NPM_TOKEN` repository secret.
 
-# Build Storybook
-npm run build-storybook
-```
-
-
-## 🌐 Browser Support
-
-| Browser | Version |
-|---------|---------|
-| Chrome | 60+ |
-| Firefox | 55+ |
-| Safari | 11+ (with WebRTC) |
-| Edge | 79+ |
-
-## 🛠 Tech Stack
-
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| Svelte | 5 | UI framework with runes |
-| Vite | 5 | Build tool & dev server |
-| Tailwind CSS | 4 | Utility-first CSS |
-| JSSIP | 3.13 | SIP/WebRTC engine |
-| Storybook | 10 | Component playground |
-| Vitest | 4 | Testing framework |
-| Playwright | 1.60 | Browser testing |
-| TypeScript | 5 | Type safety |
-| ESLint | 10 | Code linting |
+The package is published with `--access public` (see `publishConfig`).
 
 ## 📄 License
 
-ISC © [chamuridis](https://github.com/chamuridis) → Converted by [wijayadi](https://github.com/wijayadi)
+ISC

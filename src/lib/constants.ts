@@ -45,20 +45,25 @@ export const hasNotificationAPI = (): boolean => {
 };
 
 // Debug logging utility
+const isDebugEnabled = (): boolean => {
+  if (!isBrowser()) return false;
+  return Boolean((window as unknown as { __SOFTPHONE_DEBUG__?: boolean }).__SOFTPHONE_DEBUG__);
+};
+
 export const debugLog = (message: string, ...args: unknown[]): void => {
-  if (isBrowser() && window.__SOFTPHONE_DEBUG__) {
+  if (isDebugEnabled()) {
     console.log(`[SoftPhone] ${message}`, ...args);
   }
 };
 
 export const debugError = (message: string, ...args: unknown[]): void => {
-  if (isBrowser() && window.__SOFTPHONE_DEBUG__) {
+  if (isDebugEnabled()) {
     console.error(`[SoftPhone] ${message}`, ...args);
   }
 };
 
 export const debugWarn = (message: string, ...args: unknown[]): void => {
-  if (isBrowser() && window.__SOFTPHONE_DEBUG__) {
+  if (isDebugEnabled()) {
     console.warn(`[SoftPhone] ${message}`, ...args);
   }
 };

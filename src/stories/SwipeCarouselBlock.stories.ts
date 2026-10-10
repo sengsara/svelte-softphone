@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/svelte-vite';
-import SwipeCarouselBlock from '../SwipeCarouselBlock.svelte';
+import SwipeCarouselBlock from '../lib/SwipeCarouselBlock.svelte';
 
 const meta = {
   title: 'SwipeCarouselBlock',

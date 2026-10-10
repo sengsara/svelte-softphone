@@ -1,32 +1,71 @@
 {
-  "name": "svelte-softphone",
+  "name": "@sengsara/svelte-softphone",
   "version": "1.0.0",
   "type": "module",
+  "description": "A modern, self-contained Svelte 5 softphone component package built on JsSIP for reliable WebRTC/VoIP calling.",
+  "license": "ISC",
+  "svelte": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "svelte": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./style.css": "./dist/style.css",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "!dist/**/*.map",
+    "!dist/tailwind.css"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
+    "build": "npm run build:package && npm run build:css",
+    "build:package": "svelte-package -i src/lib -o dist",
+    "build:css": "tailwindcss -i ./src/lib/tailwind.css -o ./dist/style.css --minify",
+    "prepack": "npm run build",
+    "dev": "storybook dev -p 6006",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build",
     "e2e": "playwright test",
     "e2e:headed": "playwright test --headed",
     "e2e:ui": "playwright test --ui",
-    "e2e:install": "playwright install chromium"
+    "e2e:install": "playwright install chromium",
+    "test": "npm run lint && npm run check && npm run e2e",
+    "publint": "publint"
+  },
+  "workspaces": [
+    "examples/*",
+    "e2e/app"
+  ],
+  "peerDependencies": {
+    "jssip": "^3.13.8",
+    "svelte": "^5.0.0"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^5.2.1",
     "@eslint/js": "^10.0.1",
-    "@playwright/test": "^1.60.0",
+    "@playwright/test": "1.60.0",
     "@storybook/addon-a11y": "^10.4.2",
     "@storybook/addon-docs": "^10.4.2",
     "@storybook/addon-svelte-csf": "^5.1.2",
     "@storybook/addon-vitest": "^10.4.2",
     "@storybook/svelte": "^10.4.2",
     "@storybook/svelte-vite": "^10.4.2",
+    "@sveltejs/package": "^2.3.7",
     "@sveltejs/vite-plugin-svelte": "^4.0.0",
+    "@tailwindcss/cli": "^4.0.0",
+    "@tailwindcss/vite": "^4.0.0",
     "@types/node": "^25.9.1",
     "@vitest/browser-playwright": "^4.1.8",
     "@vitest/coverage-v8": "^4.1.8",
@@ -36,7 +75,9 @@
     "eslint-plugin-svelte": "^3.19.0",
     "globals": "^17.6.0",
     "jiti": "^2.7.0",
+    "jssip": "^3.13.8",
     "playwright": "^1.60.0",
+    "publint": "^0.3.4",
     "storybook": "^10.4.2",
     "svelte": "^5.0.0",
     "svelte-check": "^4.0.0",
@@ -47,7 +88,17 @@
     "vite": "^5.4.0",
     "vitest": "^4.1.8"
   },
-  "dependencies": {
-    "jssip": "^3.13.8"
-  }
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "svelte",
+    "svelte5",
+    "softphone",
+    "voip",
+    "webrtc",
+    "sip",
+    "jssip",
+    "softphone-component"
+  ]
 }

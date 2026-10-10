@@ -4,6 +4,7 @@ node_modules
 build
 dist
 storybook-static
+.svelte-kit
 .rpt2_cache
 
 # tests

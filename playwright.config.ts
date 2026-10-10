@@ -23,7 +23,8 @@ export default defineConfig({
     }
   ],
   webServer: {
-    command: `npm run dev -- --mode e2e --port ${PORT} --strictPort`,
+    command:
+      'npm run build && npm run dev -w @sengsara/svelte-softphone-e2e-app',
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000

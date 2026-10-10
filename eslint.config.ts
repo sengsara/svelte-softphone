@@ -31,13 +31,13 @@ export default ts.config(
   },
   {
     ignores: [
-      'build/',
-      '.svelte-kit/',
-      'dist/',
-      'storybook-static/',
-      'test-results/',
-      'playwright-report/',
-      'node_modules/'
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/build/**',
+      '**/.svelte-kit/**',
+      '**/storybook-static/**',
+      '**/test-results/**',
+      '**/playwright-report/**'
     ]
   },
   {

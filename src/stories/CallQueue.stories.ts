@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/svelte-vite';
-import CallQueue from '../CallQueue.svelte';
+import CallQueue from '../lib/CallQueue.svelte';
 
 const meta = {
   title: 'CallQueue',

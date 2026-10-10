@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/svelte-vite';
-import SoftPhone from '../SoftPhone.svelte';
+import SoftPhone from '../lib/SoftPhone.svelte';
 
 const meta = {
   title: 'SoftPhone',

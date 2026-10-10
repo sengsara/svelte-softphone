@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/svelte-vite';
-import KeypadBlock from '../KeypadBlock.svelte';
+import KeypadBlock from '../lib/KeypadBlock.svelte';
 
 const meta = {
   title: 'KeypadBlock',

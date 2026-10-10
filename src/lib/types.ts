@@ -1,12 +1,5 @@
 // Shared types for the Svelte SoftPhone.
 
-declare global {
-  interface Window {
-    __SOFTPHONE_DEBUG__?: boolean;
-    __softphone?: SoftPhoneTestBridge;
-  }
-}
-
 /** SIP/JsSIP connection configuration. */
 export interface SipConfig {
   domain?: string;
@@ -52,15 +45,4 @@ export interface LocalStatePhone {
   callVolume: number;
   ringVolume: number;
   connectOnStart: boolean;
-}
-
-/**
- * Test-only bridge exposed on `window.__softphone` when Vite runs in "e2e"
- * mode. It lets e2e tests trigger flows that have no dedicated UI control yet
- * (e.g. call transfer) and inspect the current phone state.
- */
-export interface SoftPhoneTestBridge {
-  transfer(transferedNumber?: string): void;
-  attendedTransfer(event: string, number?: string): void;
-  state: LocalStatePhone;
 }
