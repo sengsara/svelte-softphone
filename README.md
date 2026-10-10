@@ -1,393 +1,228 @@
-# React SoftPhone
+# Svelte Softphone
 
-[![NPM](https://img.shields.io/npm/v/react-softphone.svg)](https://www.npmjs.com/package/react-softphone)
+[![Svelte 5](https://img.shields.io/badge/Svelte-5-blue.svg)](https://svelte.dev)
+[![Vite](https://img.shields.io/badge/Vite-5-646CFF.svg)](https://vitejs.dev)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-06B6D4.svg)](https://tailwindcss.com)
+[![Storybook](https://img.shields.io/badge/Storybook-10-FF4785.svg)](https://storybook.js.org)
 
-A modern WebRTC softphone component for React applications with all dependencies bundled and zero translation dependencies.
+A modern, self-contained SIP softphone component built with **Svelte 5** and **JSSIP** for reliable VoIP/WebRTC calling. Features a clean, responsive UI with multi-channel call support, dark mode, and optional floating launcher.
+
+> Converted from the original [React Softphone](https://github.com/chamuridis/react-softphone) to Svelte 5.
 
 ## 📱 Interface Preview
 
-![React Softphone Interface](docs/images/softphone-interface.png)
+![Softphone Interface](docs/images/softphone-interface.png)
 
-*Modern, clean interface with call controls, settings, and multi-channel support*
+*Clean interface with call controls, settings panel, and multi-channel support*
 
 ## ✨ Features
 
-- 🚀 **Self-Contained** - All MUI dependencies bundled, no additional installs needed
-- 📦 **Simple Installation** - Just `npm install react-softphone` and you're ready
-- 🎯 **Material Design** - Beautiful UI with Material-UI components included
-- 📱 **WebRTC Ready** - Built on JsSIP for reliable VoIP calls
-- ⚛️ **Modern React** - Uses hooks and modern React patterns
-- 🎨 **Built-in Launcher** - Optional floating launcher button
-- 📞 **Call Management** - Hold, transfer, conference, and attended transfer support
+- ⚡ **Svelte 5 Runes** — Built with `$state`, `$derived`, `$effect`, and `$props`
+- 🔌 **Self-Contained** — JSSIP is the only runtime dependency; no UI framework bloat
+- 📦 **Vite Powered** — Lightning-fast HMR and production builds
+- 🎨 **Tailwind CSS 4** — Utility-first styling with dark mode support
+- 📞 **WebRTC VoIP** — Real SIP calling via JSSIP (JsSIP)
+- 🧪 **Storybook v10** — Component-level stories with Vitest + Playwright testing
+- 🎯 **Call Management** — Hold, transfer, mute, and attended transfer
+- 🖥️ **Modular Components** — Keypad, Call Queue, Status, Settings, Swipe Carousel
+- 🌙 **Dark Mode** — Toggle between light and dark themes
 
-## 📦 Installation
+## 📦 Project Structure
 
-```bash
-npm install react-softphone
+```
+svelte-softphone/
+├── src/
+│   ├── App.svelte              # Root app with SIP config and call routing
+│   ├── SoftPhone.svelte         # Main softphone panel & launcher
+│   ├── KeypadBlock.svelte       # Dial pad with call controls
+│   ├── CallQueue.svelte         # Incoming/pending call queue
+│   ├── StatusBlock.svelte       # Connection status indicator
+│   ├── SettingsBlock.svelte     # Volume, notifications, dark mode
+│   ├── SwipeCarouselBlock.svelte # Swipeable call tab carousel
+│   ├── stories/                 # Storybook component stories
+│   ├── lib/
+│   │   ├── CallsFlowControl.ts  # JSSIP engine — call lifecycle & state
+│   │   ├── constants.ts         # Debug logging utilities
+│   │   └── types.ts             # Shared types + global type declarations
+│   ├── main.ts                  # App entry point
+│   └── app.css                  # Global styles
+├── .storybook/                  # Storybook configuration
+├── vite.config.ts               # Vite + Vitest + Storybook test config
+├── tailwind.config.js           # Tailwind CSS 4 config
+└── package.json
 ```
 
-**That's it!** All MUI dependencies are bundled - no additional packages needed.
+## 🚀 Quick Start
 
+### Prerequisites
 
-## 🚀 Step-by-Step Setup Guide
+- Node.js 18+
+- A SIP/VoIP server (Asterisk, FreeSWITCH, etc.) with WebSocket transport
 
-Follow this complete tutorial to get React Softphone working in your app:
-
-### Step 1: Create a New React App
-
-```bash
-# Create a new React application
-npx create-react-app my-softphone-app
-cd my-softphone-app
-```
-
-### Step 2: Install React Softphone
-
-```bash
-# Install the react-softphone package
-npm install react-softphone
-```
-
-### Step 3: Add Audio Files
-
-Create the required audio files in your `public` directory:
-
-```bash
-# Create sound directory
-mkdir public/sound
-
-# Add your audio files (you'll need to provide these)
-# public/sound/ringing.ogg - Incoming call ringtone
-# public/sound/ringback.ogg - Outgoing call ringback tone
-```
-
-### Step 4: Replace App.js Content
-
-Replace the contents of `src/App.js` with:
-
-```jsx
-import React, { useState } from 'react';
-import SoftPhone from 'react-softphone';
-import './App.css';
-
-function App() {
-  // State to control softphone visibility
-  const [softPhoneOpen, setSoftPhoneOpen] = useState(false);
-  
-  // Your SIP server configuration
-  const sipConfig = {
-    domain: 'your-sip-server.com',        // Your SIP domain
-    uri: 'sip:your-extension@your-sip-server.com',  // Your SIP URI
-    password: 'your-sip-password',        // Your SIP password
-    ws_servers: 'wss://your-sip-server.com:8089/ws', // WebSocket server
-    display_name: 'Your Name',            // Display name for calls
-    debug: false,                         // Set to true for debugging
-    session_timers_refresh_method: 'invite'
-  };
-
-  // Settings state with localStorage persistence
-  const [callVolume, setCallVolume] = useState(() => {
-    const saved = localStorage.getItem('softphone-call-volume');
-    return saved ? parseFloat(saved) : 0.8;
-  });
-  
-  const [ringVolume, setRingVolume] = useState(() => {
-    const saved = localStorage.getItem('softphone-ring-volume');
-    return saved ? parseFloat(saved) : 0.6;
-  });
-  
-  const [notifications, setNotifications] = useState(() => {
-    const saved = localStorage.getItem('softphone-notifications');
-    return saved ? JSON.parse(saved) : true;
-  });
-  
-  const [connectOnStart, setConnectOnStart] = useState(() => {
-    const saved = localStorage.getItem('softphone-connect-on-start');
-    return saved ? JSON.parse(saved) : false;
-  });
-
-  // Functions to save settings (implement localStorage if needed)
-  const saveConnectOnStart = (value) => {
-    setConnectOnStart(value);
-    localStorage.setItem('softphone-connect-on-start', value);
-  };
-
-  const saveNotifications = (value) => {
-    setNotifications(value);
-    localStorage.setItem('softphone-notifications', value);
-  };
-
-  const saveCallVolume = (value) => {
-    setCallVolume(value);
-    localStorage.setItem('softphone-call-volume', value);
-  };
-
-  const saveRingVolume = (value) => {
-    setRingVolume(value);
-    localStorage.setItem('softphone-ring-volume', value);
-  };
-
-  return (
-    <div className="App">
-      <header className="App-header">
-        <h1>📞 My Softphone App</h1>
-        <p>Click the button below to open the softphone</p>
-        
-        <button 
-          onClick={() => setSoftPhoneOpen(true)}
-          style={{
-            padding: '12px 24px',
-            fontSize: '16px',
-            backgroundColor: '#1976d2',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            marginBottom: '20px'
-          }}
-        >
-          📞 Open Softphone
-        </button>
-
-        <SoftPhone
-          // Visibility control
-          softPhoneOpen={softPhoneOpen}
-          setSoftPhoneOpen={setSoftPhoneOpen}
-          
-          // Audio settings
-          callVolume={callVolume}
-          ringVolume={ringVolume}
-          
-          // Connection settings
-          connectOnStart={connectOnStart}
-          notifications={notifications}
-          
-          // SIP configuration
-          config={sipConfig}
-          
-          // Settings callbacks
-          setConnectOnStartToLocalStorage={saveConnectOnStart}
-          setNotifications={saveNotifications}
-          setCallVolume={saveCallVolume}
-          setRingVolume={saveRingVolume}
-          
-          // Optional: Built-in floating launcher
-          builtInLauncher={true}
-          launcherPosition="bottom-right"
-          launcherSize="medium"
-          launcherColor="primary"
-          
-          // Optional: Accounts for call transfer
-          asteriskAccounts={[]}
-          
-          // Optional: Timezone for call history
-          timelocale="UTC"
-        />
-      </header>
-    </div>
-  );
-}
-
-export default App;
-```
-
-### Step 5: Update App.css (Optional Styling)
-
-Add these styles to `src/App.css`:
-
-```css
-.App {
-  text-align: center;
-}
-
-.App-header {
-  background-color: #282c34;
-  padding: 20px;
-  color: white;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.App-header h1 {
-  margin-bottom: 10px;
-}
-
-.App-header p {
-  margin-bottom: 30px;
-  opacity: 0.8;
-}
-```
-
-### Step 6: Configure Your SIP Settings
-
-Update the `sipConfig` object in Step 4 with your actual SIP server details:
-
-```javascript
-const sipConfig = {
-  domain: 'sip.yourprovider.com',           // Replace with your SIP domain
-  uri: 'sip:1001@sip.yourprovider.com',     // Replace with your extension
-  password: 'your-actual-password',          // Replace with your SIP password
-  ws_servers: 'wss://sip.yourprovider.com:8089/ws', // Replace with your WebSocket URL
-  display_name: 'John Doe',                  // Replace with your name
-  debug: false                               // Set to true for troubleshooting
-};
-```
-
-### Step 7: Run Your Application
-
-```bash
-# Start the development server
-npm start
-```
-
-Your app will open at `http://localhost:3000` with a working softphone!
-
-### Step 8: Enable Debug Mode (Optional)
-
-For troubleshooting, add this to your browser console:
-
-```javascript
-window.__SOFTPHONE_DEBUG__ = true;
-```
-
-## 📋 Requirements
-
-### No Additional Dependencies Required
-
-All dependencies are bundled with the package.
-
-## 🔧 Props Configuration
-
-### Required Props
-
-| Property | Type | Description |
-|----------|------|-------------|
-| `config` | Object | SIP configuration object (see below) |
-| `setConnectOnStartToLocalStorage` | Function | Callback to save auto-connect preference |
-| `setNotifications` | Function | Callback to save notification preference |
-| `setCallVolume` | Function | Callback to save call volume |
-| `setRingVolume` | Function | Callback to save ring volume |
-
-### Optional Props
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `softPhoneOpen` | Boolean | `false` | Controls softphone visibility |
-| `setSoftPhoneOpen` | Function | `() => {}` | Callback when softphone opens/closes |
-| `callVolume` | Number | `0.5` | Call audio volume (0-1) |
-| `ringVolume` | Number | `0.5` | Ring audio volume (0-1) |
-| `connectOnStart` | Boolean | `false` | Auto-connect on component mount |
-| `notifications` | Boolean | `true` | Show browser notifications for calls |
-| `timelocale` | String | `'UTC'` | Timezone for call history |
-| `asteriskAccounts` | Array | `[]` | List of available accounts for transfer |
-| `builtInLauncher` | Boolean | `false` | Show floating launcher button |
-| `launcherPosition` | String | `'bottom-right'` | Launcher position (`'bottom-right'`, `'bottom-left'`, etc.) |
-| `launcherSize` | String | `'medium'` | Launcher size (`'small'`, `'medium'`, `'large'`) |
-| `launcherColor` | String | `'primary'` | Launcher color theme |
-
-### Config Object
-
-The `config` prop must include these SIP settings:
-
-```javascript
-const domain = 'your-sip-server.com';
-const extension = 'your-extension';
-
-const config = {
-  domain: domain,
-  uri: `sip:${extension}@${domain}`,
-  password: 'your-password',
-  ws_servers: `wss://${domain}:8089/ws`,
-  display_name: extension,
-  debug: false,
-  session_timers_refresh_method: 'invite'
-};
-```
-
-## 🎵 Audio Files
-
-Place these audio files in your `public/sound/` directory:
-- `ringing.ogg` - Incoming call ringtone
-- `ringback.ogg` - Outgoing call ringback tone
-
-## 🎨 Built-in Launcher
-
-The softphone includes an optional floating launcher button:
-
-```jsx
-<SoftPhone
-  config={config}
-  builtInLauncher={true}
-  launcherPosition="bottom-right"
-  launcherSize="medium"
-  launcherColor="primary"
-  // ... other props
-/>
-```
-
-Available positions: `bottom-right`, `bottom-left`, `top-right`, `top-left`
-Available sizes: `small`, `medium`, `large`
-Available colors: `primary`, `secondary`, `success`, `error`, `warning`, `info`
-
-## 📞 Call Features
-
-- **Make Calls** - Dial numbers and make outgoing calls
-- **Answer/Reject** - Handle incoming calls with notifications
-- **Hold/Resume** - Put calls on hold and resume them
-- **Transfer** - Transfer calls to other numbers
-- **Attended Transfer** - Talk to transfer target before completing
-- **Conference** - Merge multiple calls into conference
-- **Mute/Unmute** - Control microphone during calls
-- **Call History** - View recent call history with timestamps
-- **Volume Control** - Separate controls for call and ring volume
-
-## 🌐 Browser Support
-
-- Chrome 60+
-- Firefox 55+
-- Safari 11+ (with WebRTC support)
-- Edge 79+
-
-## 🐛 Debug Mode
-
-To enable debug logging for troubleshooting:
-
-```javascript
-// Enable debug mode in your app
-window.__SOFTPHONE_DEBUG__ = true;
-
-// Now all debug messages will appear in browser console
-```
-
-This will show detailed logs for:
-- Connection attempts
-- Call state changes
-- Notification handling
-- Error messages
-
-## 🔧 Development
+### Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/chamuridis/react-softphone.git
+git clone https://github.com/wijayadi/svelte-softphone.git
+cd svelte-softphone
 
 # Install dependencies
 npm install
 
-# Build the package
+# Start the development server
+npm run dev
+
+# Open Storybook for component exploration
+npm run storybook
+
+# Build for production
 npm run build
-
-# Create package
-npm pack
-
-# Install the created package in your project
-npm install ../react-softphone/react-softphone-*.tgz  
-
 ```
+
+### Basic Usage
+
+```svelte
+<script>
+  import SoftPhone from 'svelte-softphone';
+  import { CallsFlowControl } from 'svelte-softphone/lib/CallsFlowControl';
+
+  const flowRoute = new CallsFlowControl();
+  let localStatePhone = $state({
+    displayCalls: [],
+    connectedPhone: false,
+    darkMode: false,
+    notifications: true,
+    callVolume: 0.8,
+    ringVolume: 0.8,
+    connectOnStart: false
+  });
+  let activeChannel = $state(0);
+  let dialState = $state('');
+
+  let config = $state({
+    domain: 'your-sip-server.com',
+    port: 5060,
+    wsUrl: 'wss://your-sip-server.com:8089/ws',
+    secret: 'your-sip-secret',
+    debug: false
+  });
+
+  function connect() {
+    flowRoute.config = config;
+    flowRoute.init();
+    flowRoute.start();
+  }
+</script>
+
+<SoftPhone
+  flowRoute={flowRoute}
+  localStatePhone={localStatePhone}
+  activeChannel={activeChannel}
+  setActiveChannel={(v) => activeChannel = v}
+  handleCall={(number) => flowRoute.call(number)}
+  handleEndCall={(id) => flowRoute.hungup(id)}
+  handleHold={(id, h) => flowRoute.hold(id, h)}
+  handleMicMute={() => flowRoute.setMicMuted()}
+  handleAnswer={(id) => flowRoute.answer(id)}
+  handleReject={(id) => flowRoute.hungup(id)}
+/>
+
+<button onclick={connect}>Connect to SIP</button>
+```
+
+## 🔧 Props Reference
+
+### SoftPhone Component
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `flowRoute` | `CallsFlowControl` | JSSIP engine instance |
+| `localStatePhone` | `object` | Phone state object (see below) |
+| `activeChannel` | `number` | Index of the currently active call |
+| `setActiveChannel` | `(v: number) => void` | Callback to set active channel |
+| `handleCall` | `(number: string) => void` | Initiate an outgoing call |
+| `handleEndCall` | `(sessionId: string) => void` | End a call by session ID |
+| `handleHold` | `(sessionId: string, hold: boolean) => void` | Hold or resume a call |
+| `handleMicMute` | `() => void` | Toggle microphone mute |
+| `handleAnswer` | `(sessionId: string) => void` | Answer an incoming call |
+| `handleReject` | `(sessionId: string) => void` | Reject an incoming call |
+| `handleCallTransfer` | `(number: string) => void` | Blind transfer a call |
+| `handleCallAttendedTransfer` | `(event, number) => void` | Attended transfer control |
+| `handleDarkMode` | `(checked: boolean) => void` | Toggle dark mode |
+| `handlePressKey` | `(key: string) => void` | Dial pad key press handler |
+| `builtInLauncher` | `boolean` | Show floating launcher button |
+
+### Local State Phone Object
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `displayCalls` | `Call[]` | `[]` | Array of displayed calls |
+| `connectedPhone` | `boolean` | `false` | SIP connection status |
+| `darkMode` | `boolean` | `false` | Dark theme toggle |
+| `notifications` | `boolean` | `true` | Browser notifications |
+| `callVolume` | `number` | `0.8` | Call audio volume (0–1) |
+| `ringVolume` | `number` | `0.8` | Ring tone volume (0–1) |
+| `connectOnStart` | `boolean` | `false` | Auto-connect on mount |
+
+### CallsFlowControl (JSSIP Engine)
+
+| Method | Params | Description |
+|--------|--------|-------------|
+| `init()` | — | Initialize the SIP user agent |
+| `start()` | — | Start the SIP stack |
+| `stop()` | — | Stop the SIP stack |
+| `call(number)` | `string` | Place an outgoing call |
+| `answer(sessionId)` | `string` | Answer an incoming call |
+| `hungup(sessionId)` | `string` | Terminate a call |
+| `hold(sessionId, hold)` | `string, boolean` | Hold/resume a call |
+| `setMicMuted()` | — | Toggle microphone mute |
+| `sendDTMF(code)` | `string` | Send DTMF tone |
+| `config` | `object` | SIP configuration setter |
+
+## 🎵 Audio Files
+
+Place these audio files in your project assets for call sounds:
+
+- `ringing.ogg` — Incoming call ringtone
+- `ringback.ogg` — Outgoing call ringback tone
+
+## 🧪 Testing
+
+```bash
+# Run Storybook with Vitest browser tests
+npm run build-storybook
+
+# Run linting
+npm run lint
+npm run lint:fix
+
+# Run type checking
+npm run check
+```
+
+## 🌐 Browser Support
+
+| Browser | Version |
+|---------|---------|
+| Chrome | 60+ |
+| Firefox | 55+ |
+| Safari | 11+ (with WebRTC) |
+| Edge | 79+ |
+
+## 🛠 Tech Stack
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| Svelte | 5 | UI framework with runes |
+| Vite | 5 | Build tool & dev server |
+| Tailwind CSS | 4 | Utility-first CSS |
+| JSSIP | 3.13 | SIP/WebRTC engine |
+| Storybook | 10 | Component playground |
+| Vitest | 4 | Testing framework |
+| Playwright | 1.60 | Browser testing |
+| TypeScript | 5 | Type safety |
+| ESLint | 10 | Code linting |
 
 ## 📄 License
 
-ISC © [chamuridis](https://github.com/chamuridis)
+ISC © [chamuridis](https://github.com/chamuridis) → Converted by [wijayadi](https://github.com/wijayadi)
