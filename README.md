@@ -24,10 +24,13 @@ floating launcher.
 - ⚡ **Svelte 5 runes** — `$state`, `$derived`, `$effect`, `$props`
 - 📦 **Tree-shakeable package** — built with `svelte-package`, ships `.svelte` + `.d.ts`
 - 📞 **WebRTC VoIP** — real SIP calling via JsSIP
-- 🎯 **Call management** — hold, mute, blind & attended transfer
+- 🎯 **Call management** — hold, mute, blind & attended transfer, conference/swap/pass, multi-channel
+- 🔔 **Incoming-call notifications** and ring/ringback audio
+- 🕓 **Call history** with timezone-aware timestamps
+- ⚙️ **Settings** — auto-connect, notifications, call & ring volume (persistable)
 - 🎨 **Tailwind CSS 4** — styles compiled to a single importable stylesheet
-- 🖥️ **Modular components** — keypad, call queue, status, settings, carousel
-- 🌙 **Dark mode** and a configurable built-in launcher
+- 🖥️ **Modular components** — keypad, call queue, status, settings/history, carousel
+- 🌙 **Dark mode** and a configurable built-in launcher (position/size/color)
 
 ## 📦 Installation
 
@@ -112,12 +115,14 @@ your Tailwind source scan instead:
 | Export | Description |
 |--------|-------------|
 | `SoftPhone` | Main softphone panel + optional launcher |
-| `KeypadBlock` | Dial pad and call controls |
+| `KeypadBlock` | Dial pad, call controls, blind/attended transfer |
 | `CallQueue` | Incoming/pending call queue |
 | `StatusBlock` | Internet + softphone connection status |
 | `SettingsBlock` | Volume, notifications, connection settings |
 | `SwipeCarouselBlock` | Swipeable multi-channel carousel |
-| `CallsFlowControl` | JsSIP engine (call lifecycle & state) |
+| `SwipeCarouselBodyBlock` | Settings / call-history tabs |
+| `SearchList` | Asterisk account picker for transfers |
+| `CallsFlowControl` | JsSIP engine (call lifecycle & audio & state) |
 | `style.css` | Compiled component styles |
 
 ### `SoftPhone` props
@@ -128,12 +133,25 @@ your Tailwind source scan instead:
 | `localStatePhone` | `LocalStatePhone` | Phone state object |
 | `activeChannel` | `number` | Active channel index |
 | `setActiveChannel` | `(v: number) => void` | Set active channel |
-| `handleCall` | `(number) => void` | Place an outgoing call |
+| `accounts` | `AsteriskAccount[]` | Accounts offered in the transfer picker |
+| `timelocale` | `string` | Timezone for call-history timestamps |
+| `dialState` / `setDialState` | `string` / `(v: string) => void` | Dial-number input (two-way) |
+| `notifyMessage` / `onNotifyClose` | `string` / `() => void` | Toast message + dismiss |
+| `softPhoneOpen` / `setSoftPhoneOpen` | `boolean` / `(v: boolean) => void` | Panel visibility |
+| `builtInLauncher` | `boolean` | Show the floating launcher |
+| `launcherPosition` | `'bottom-right' \| 'bottom-left' \| 'top-right' \| 'top-left'` | Launcher position |
+| `launcherSize` | `'small' \| 'medium' \| 'large'` | Launcher size |
+| `launcherColor` | `'primary' \| 'secondary' \| 'success' \| 'error' \| 'warning' \| 'info'` | Launcher color |
+| `handleCall` | `() => void` | Place an outgoing call |
 | `handleEndCall` | `(sessionId) => void` | End a call |
 | `handleHold` | `(sessionId, hold) => void` | Hold/resume |
 | `handleMicMute` | `() => void` | Toggle microphone mute |
 | `handleAnswer` / `handleReject` | `(sessionId) => void` | Answer/reject an incoming call |
-| `builtInLauncher` | `boolean` | Show the floating launcher |
+| `handleCallTransfer` / `handleCallAttendedTransfer` | `(number) => void` / `(event, number) => void` | Blind / attended transfer |
+| `handleConnectPhone` | `(connected: boolean) => void` | Connect/disconnect the SIP stack |
+| `handleConnectOnStart` / `handleNotifications` | `(value: boolean) => void` | Persisted settings |
+| `handleSettingsSlider` | `(type, value) => void` | Volume sliders |
+| `handleDarkMode` / `handleUserPresence` | `(value) => void` | Theme / presence |
 
 ### `CallsFlowControl` (engine)
 
@@ -144,6 +162,8 @@ your Tailwind source scan instead:
 | `answer(sessionId)` / `hungup(sessionId)` | Answer / terminate a call |
 | `hold(sessionId, hold)` | Hold or resume |
 | `setMicMuted()` / `sendDTMF(code)` | Mute toggle / DTMF tones |
+| `playRing()` / `stopRing()` / `startRingback()` / `stopRingback()` | Ring/ringback audio |
+| `player` / `ringer` / `ringbackTone` | Audio elements assigned by the app |
 | `onCallActionConnection` / `onEngineEvent` | Callbacks for UI state wiring |
 
 ## 📁 Repository structure

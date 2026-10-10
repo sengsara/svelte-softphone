@@ -1,4 +1,4 @@
-import { UA, WebSocketInterface } from 'jssip';
+import { UA, WebSocketInterface, debug } from 'jssip';
 import { debugLog, debugError } from './constants';
 import type { SipConfig } from './types';
 
@@ -48,11 +48,19 @@ export class CallsFlowControl {
   config: SipConfig = {};
   phone: EnginePhone | null = null;
   activeCall: Call | null = null;
+  activeChanel: { id?: number | string; [key: string]: unknown } | null = null;
   callsQueue: Call[] = [];
   holdCallsQueue: Call[] = [];
   micMuted = false;
   connectedPhone = false;
   initiated = false;
+
+  /** Remote audio element for the active call (set by the app). */
+  player: HTMLAudioElement | null = null;
+  /** Incoming-call ringtone element (set by the app). */
+  ringer: HTMLAudioElement | null = null;
+  /** Outgoing-call ringback tone (set by the app). */
+  ringbackTone: HTMLAudioElement | null = null;
 
   /** Called when the engine wants to notify the UI about a call action. */
   onCallActionConnection?: CallActionHandler;
@@ -71,9 +79,13 @@ export class CallsFlowControl {
     if (session.direction === 'incoming') {
       this.callsQueue.push(session);
       this.onCallActionConnection?.('incomingCall', session);
+      if (!this.activeCall) {
+        this.playRing();
+      }
     } else {
       this.activeCall = session;
       this.onCallActionConnection?.('outgoingCall', session);
+      this.connectAudio(session);
     }
   };
 
@@ -87,13 +99,15 @@ export class CallsFlowControl {
 
     try {
       const wsUrl =
-        this.config.wsUrl || `ws://${this.config.domain}:${this.config.port ?? 5060}`;
+        this.config.wsUrl ||
+        this.config.ws_servers ||
+        `ws://${this.config.domain}:${this.config.port ?? 5060}`;
       const socket = new WebSocketInterface(wsUrl);
       const uaConfig = {
         ...this.config,
         uri: this.config.uri || `sip:${this.config.secret ?? 'phone'}@${this.config.domain}`,
-        password: this.config.secret,
-        sockets: [socket],
+        password: this.config.password ?? this.config.secret,
+        sockets: [socket]
       } as unknown as UAConfig;
 
       const ua = new UA(uaConfig);
@@ -108,7 +122,7 @@ export class CallsFlowControl {
         'registrationFailed',
         'invite',
         'message',
-        'connecting',
+        'connecting'
       ];
       events.forEach((event) => {
         this.phone?.on(event, (data: unknown) => {
@@ -140,6 +154,11 @@ export class CallsFlowControl {
       debugLog('Please call .init() before connect');
       return;
     }
+    if (this.config.debug) {
+      debug.enable('JsSIP:*');
+    } else {
+      debug.disable();
+    }
     this.phone.start();
   }
 
@@ -163,8 +182,10 @@ export class CallsFlowControl {
     }
 
     this.phone.call(`sip:${to}@${this.config.domain}`, {
+      extraHeaders: ['First: first', 'Second: second'],
+      RTCConstraints: { optional: [{ DtlsSrtpKeyAgreement: 'true' }] },
       mediaConstraints: { audio: true },
-      sessionTimersExpires: 600,
+      sessionTimersExpires: 600
     });
   }
 
@@ -175,10 +196,13 @@ export class CallsFlowControl {
       return;
     }
     try {
+      this.stopRing();
       const call = this.callsQueue.find((c) => c.id === sessionId);
       if (call) {
+        call.customPayload = this.activeChanel?.id;
         call.answer?.({ mediaConstraints: { audio: true } });
         this.activeCall = call;
+        this.connectAudio(call);
       }
     } catch (err) {
       debugError('Error answering call:', err);
@@ -245,6 +269,62 @@ export class CallsFlowControl {
     debugLog('holdCallsQueue', this.holdCallsQueue);
   }
 
+  /** Play the incoming-call ringtone. */
+  playRing(): void {
+    if (this.ringer) {
+      try {
+        this.ringer.currentTime = 0;
+        this.ringer.play().catch((err) => debugError('Ringtone play error:', err));
+      } catch (err) {
+        debugError('Failed to play ringtone:', err);
+      }
+    }
+  }
+
+  /** Stop the incoming-call ringtone. */
+  stopRing(): void {
+    if (this.ringer) {
+      this.ringer.currentTime = 0;
+      this.ringer.pause();
+    }
+  }
+
+  /** Start the outgoing-call ringback tone. */
+  startRingback(): void {
+    if (this.ringbackTone) {
+      try {
+        this.ringbackTone.currentTime = 0;
+        this.ringbackTone.play().catch((err) => debugError('Ringback tone play error:', err));
+      } catch (e) {
+        debugError('Failed to play ringback tone:', e);
+      }
+    }
+  }
+
+  /** Stop the outgoing-call ringback tone. */
+  stopRingback(): void {
+    if (this.ringbackTone) {
+      try {
+        this.ringbackTone.pause();
+        this.ringbackTone.currentTime = 0;
+      } catch (e) {
+        debugError('Failed to stop ringback tone:', e);
+      }
+    }
+  }
+
+  /** Wire the remote media stream of a call to the player element. */
+  private connectAudio(call: Call): void {
+    const connection = call.connection;
+    if (connection && this.player) {
+      connection.addEventListener('addstream', (event: Event) => {
+        if (this.player) {
+          this.player.srcObject = (event as unknown as { stream: MediaStream }).stream;
+        }
+      });
+    }
+  }
+
   private registerSessionEvents(call: Call): void {
     const events = [
       'connecting',
@@ -266,7 +346,7 @@ export class CallsFlowControl {
       'getusermediafailed',
       'ended',
       'failed',
-      'confirmed',
+      'confirmed'
     ];
 
     events.forEach((type) => {
@@ -276,8 +356,19 @@ export class CallsFlowControl {
     });
   }
 
-  private handleSessionEvent(type: string, _data: unknown, _cause: unknown, call: Call): void {
+  private handleSessionEvent(type: string, data: unknown, _cause: unknown, call: Call): void {
     switch (type) {
+      case 'progress': {
+        const progress = data as { originator?: string; response?: { status_code?: number } };
+        if (progress?.originator === 'remote') {
+          if (progress.response?.status_code === 180) this.startRingback();
+          if (progress.response?.status_code === 183) this.stopRingback();
+        }
+        break;
+      }
+      case 'reinvite':
+        this.onCallActionConnection?.('reinvite', call.id, data);
+        break;
       case 'hold':
         this.onCallActionConnection?.('hold', call.id);
         this.holdCallsQueue.push(call);
@@ -293,6 +384,7 @@ export class CallsFlowControl {
         this.onCallActionConnection?.('muted', call.id);
         break;
       case 'confirmed':
+        this.stopRingback();
         if (!this.activeCall) {
           this.activeCall = this.callsQueue.find((c) => c.id === call.id) ?? null;
         }
@@ -301,11 +393,15 @@ export class CallsFlowControl {
         break;
       case 'ended':
       case 'failed':
+        this.stopRingback();
         this.onCallActionConnection?.('callEnded', call.id);
         this.callsQueue = this.callsQueue.filter((c) => c.id !== call.id);
         if (this.activeCall?.id === call.id) this.activeCall = null;
         this.holdCallsQueue = this.holdCallsQueue.filter((c) => c.id !== call.id);
         this.sessions.delete(call.id);
+        if (this.callsQueue.length === 0) {
+          this.stopRing();
+        }
         break;
       default:
         break;

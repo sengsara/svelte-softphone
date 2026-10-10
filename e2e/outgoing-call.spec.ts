@@ -27,7 +27,7 @@ test('outgoing call can be ended from the keypad', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'End Call' })).toBeVisible();
   await page.getByRole('button', { name: 'End Call' }).click();
 
-  await expect(page.getByTestId('carousel-panel-0')).toContainText('No active call');
+  await expect(page.getByTestId('carousel-panel-0')).toContainText('Ready');
   await expect(page.getByRole('button', { name: 'Make Call' })).toBeVisible();
 });
 
@@ -40,5 +40,5 @@ test('dial state is cleared after the call is placed', async ({ page }) => {
 
   // Placing a new call without dialing should not call anyone.
   await makeCall(page);
-  await expect(page.getByTestId('carousel-panel-0')).toContainText('No active call');
+  await expect(page.getByTestId('carousel-panel-0')).toContainText('Ready');
 });

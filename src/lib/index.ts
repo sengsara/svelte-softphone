@@ -7,13 +7,22 @@ export { default as CallQueue } from './CallQueue.svelte';
 export { default as StatusBlock } from './StatusBlock.svelte';
 export { default as SettingsBlock } from './SettingsBlock.svelte';
 export { default as SwipeCarouselBlock } from './SwipeCarouselBlock.svelte';
+export { default as SwipeCarouselBodyBlock } from './SwipeCarouselBodyBlock.svelte';
+export { default as SearchList } from './SearchList.svelte';
 
 // JsSIP engine
 export { CallsFlowControl } from './CallsFlowControl';
 export type { Call, CallActionHandler, EngineEventHandler } from './CallsFlowControl';
 
 // Types
-export type { SipConfig, DisplayCall, LocalStatePhone } from './types';
+export type {
+  SipConfig,
+  DisplayCall,
+  PhoneCall,
+  CallRecord,
+  AsteriskAccount,
+  LocalStatePhone
+} from './types';
 
 // Utilities and constants
 export {

@@ -8,11 +8,15 @@ const meta = {
   args: {
     localStatePhone: {
       connectedPhone: true,
+      connectingPhone: false,
       connectOnStart: false,
       notifications: true,
       darkMode: false,
       callVolume: 0.5,
       ringVolume: 0.5,
+      phoneCalls: [],
+      callHistory: [],
+      userPresence: 'available',
       displayCalls: [
         {
           id: 1,

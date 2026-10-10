@@ -1,5 +1,8 @@
 @import 'tailwindcss';
 
+/* Class-based dark mode so consumers can toggle `.dark` on <html>. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Only scan the component library sources so the emitted stylesheet contains
    exactly the utilities the components need. */
 @source './**/*.svelte';

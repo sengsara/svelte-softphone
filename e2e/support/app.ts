@@ -6,7 +6,7 @@ export const ONLINE = 'Online';
 /** Open the app and wait for the softphone panel to render. */
 export async function gotoApp(page: Page): Promise<void> {
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'Softphone' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Softphone', exact: true })).toBeVisible();
 }
 
 /** Connect to the (mocked) SIP server and wait until the UI reports Online. */

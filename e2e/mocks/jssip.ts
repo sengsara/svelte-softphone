@@ -172,6 +172,12 @@ export class WebSocketInterface {
   }
 }
 
+/** Mirrors `jssip`'s `debug` (no-op in tests). */
+export const debug = {
+  enable: (_namespaces?: string): void => {},
+  disable: (): void => {}
+};
+
 // `CallsFlowControl.ts` imports the class as `UA`.
 export { MockUA as UA };
 

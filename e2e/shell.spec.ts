@@ -26,7 +26,7 @@ test('renders the three channel tabs', async ({ page }) => {
 
 test('shows an empty call queue and no active call by default', async ({ page }) => {
   await expect(page.getByText('No incoming calls')).toBeVisible();
-  await expect(page.getByTestId('carousel-panel-0')).toContainText('No active call');
+  await expect(page.getByTestId('carousel-panel-0')).toContainText('Ready');
 });
 
 test('close button hides the panel', async ({ page }) => {

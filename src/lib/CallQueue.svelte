@@ -1,8 +1,12 @@
 <script lang="ts">
-  import type { DisplayCall } from './types';
+  interface QueueCall {
+    sessionId: string;
+    callNumber?: string;
+    [key: string]: unknown;
+  }
 
   interface Props {
-    calls?: DisplayCall[];
+    calls?: QueueCall[];
     handleAnswer?: (sessionId?: unknown) => void;
     handleReject?: (sessionId?: unknown) => void;
   }

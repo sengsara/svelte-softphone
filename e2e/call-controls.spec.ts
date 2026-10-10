@@ -28,7 +28,7 @@ test('call can be put on hold and resumed', async ({ page }) => {
 
 test('mute and hold controls are disabled when there is no active call', async ({ page }) => {
   await page.getByRole('button', { name: 'End Call' }).click();
-  await expect(page.getByTestId('carousel-panel-0')).toContainText('No active call');
+  await expect(page.getByTestId('carousel-panel-0')).toContainText('Ready');
 
   await expect(page.getByRole('button', { name: 'Mute Microphone' })).toBeDisabled();
   await expect(page.getByRole('button', { name: 'Hold Call' })).toBeDisabled();

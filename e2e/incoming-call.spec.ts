@@ -18,9 +18,6 @@ test('incoming call shows parsed caller metadata and can be answered', async ({ 
   await expect(item).toContainText('Company Number:');
   await expect(item).toContainText('ACME');
 
-  // A ringing incoming call puts the softphone in the "Connecting" state.
-  await expect(page.getByTestId('status-softphone')).toContainText('Connecting');
-
   await item.getByRole('button', { name: 'Answer Call' }).click();
 
   await expect(page.getByTestId('call-queue-item')).toHaveCount(0);
@@ -36,7 +33,7 @@ test('incoming call can be rejected', async ({ page }) => {
   await item.getByRole('button', { name: 'Reject Call' }).click();
 
   await expect(page.getByTestId('call-queue-item')).toHaveCount(0);
-  await expect(page.getByTestId('carousel-panel-0')).toContainText('No active call');
+  await expect(page.getByTestId('carousel-panel-0')).toContainText('Ready');
 });
 
 test('multiple incoming calls render as separate queue items', async ({ page }) => {

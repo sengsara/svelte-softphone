@@ -18,8 +18,8 @@ test('each channel shows its own call state', async ({ page }) => {
   await startActiveCall(page);
 
   await expect(page.getByTestId('carousel-panel-0')).toContainText('Active Call');
-  await expect(page.getByTestId('carousel-panel-1')).toContainText('No active call');
-  await expect(page.getByTestId('carousel-panel-2')).toContainText('No active call');
+  await expect(page.getByTestId('carousel-panel-1')).toContainText('Ready');
+  await expect(page.getByTestId('carousel-panel-2')).toContainText('Ready');
 });
 
 test('panels expose accessible tab semantics', async ({ page }) => {

@@ -35,7 +35,7 @@
     if (connectingPhone) {
       return {
         icon: 'connecting-icon',
-        label: 'Connecting',
+        label: connectedPhone ? 'Disconnecting' : 'Connecting',
         color: 'blue'
       };
     }
