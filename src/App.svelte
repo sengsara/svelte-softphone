@@ -1,21 +1,22 @@
-<script>
+<script lang="ts">
+  import { CallsFlowControl } from './lib/CallsFlowControl';
+  import type { SipConfig, LocalStatePhone, DisplayCall } from './lib/types';
   import SoftPhone from './SoftPhone.svelte';
-  import CallsFlowControl from './CallsFlowControl.svelte';
-  
+
   // JSSIP configuration
-  let config = $state({
+  const config = $state<SipConfig>({
     domain: 'localhost',
     port: 5060,
     wsUrl: 'ws://localhost:5060',
     secret: 'your-secret-here',
     debug: false
   });
-  
+
   // Create flow route instance
-  let flowRoute = $state(new CallsFlowControl());
-  
+  const flowRoute = new CallsFlowControl();
+
   // Local state phone (will be managed by parent or external store)
-  let localStatePhone = $state({
+  const localStatePhone = $state<LocalStatePhone>({
     displayCalls: [],
     connectedPhone: false,
     darkMode: false,
@@ -24,70 +25,71 @@
     ringVolume: 0.8,
     connectOnStart: false
   });
-  
+
   // Active channel
   let activeChannel = $state(0);
-  
+
+  // Dial state
+  let dialState = $state('');
+
+  // Set the active channel
+  function setActiveChannel(channel: number): void {
+    activeChannel = channel;
+  }
+
   // Connect to server
-  function connectToServer() {
+  function connectToServer(): void {
     if (config.domain && config.secret) {
-      flowRoute.config = config;
+      flowRoute.config = { ...config };
       flowRoute.init();
       flowRoute.start();
     }
   }
-  
+
   // Handle call
-  function handleCall(event) {
-    const target = event?.target || event;
-    const number = target?.value || target?.currentTarget?.value || '';
+  function handleCall(event?: unknown): void {
+    const target = (event as { target?: HTMLInputElement } | undefined)?.target;
+    const number = target?.value ?? (typeof event === 'string' ? event : '');
     if (number) {
       flowRoute.call(number);
     }
   }
-  
+
   // Handle end call
-  function handleEndCall(sessionId) {
-    if (sessionId) {
-      flowRoute.hungup(sessionId);
-    }
+  function handleEndCall(sessionId?: unknown): void {
+    if (typeof sessionId === 'string') flowRoute.hungup(sessionId);
   }
-  
+
   // Handle hold
-  function handleHold(sessionId, hold) {
-    if (sessionId) {
-      flowRoute.hold(sessionId, hold);
-    }
+  function handleHold(sessionId?: unknown, hold?: unknown): void {
+    if (typeof sessionId === 'string') flowRoute.hold(sessionId, hold !== false);
   }
-  
+
   // Handle mic mute
-  function handleMicMute() {
+  function handleMicMute(): void {
     flowRoute.setMicMuted();
   }
-  
+
   // Handle answer
-  function handleAnswer(sessionId) {
-    if (sessionId) {
-      flowRoute.answer(sessionId);
-    }
+  function handleAnswer(sessionId?: unknown): void {
+    if (typeof sessionId === 'string') flowRoute.answer(sessionId);
   }
-  
+
   // Handle reject
-  function handleReject(sessionId) {
-    if (sessionId) {
-      flowRoute.hungup(sessionId);
-    }
+  function handleReject(sessionId?: unknown): void {
+    if (typeof sessionId === 'string') flowRoute.hungup(sessionId);
   }
-  
+
   // Handle call transfer
-  function handleCallTransfer(transferedNumber) {
-    if (!dialState && !transferedNumber) return;
-    
-    const newCallTransferDisplayCalls = localStatePhone.displayCalls.map(a => 
-      a.id === activeChannel 
+  function handleCallTransfer(transferedNumber?: unknown): void {
+    const number = dialState || (typeof transferedNumber === 'string' ? transferedNumber : '');
+    if (!number) return;
+
+    localStatePhone.displayCalls = localStatePhone.displayCalls.map((a: DisplayCall) =>
+      a.id === activeChannel
         ? {
             ...a,
-            transferNumber: dialState || transferedNumber,
+            transferNumber: number,
             inTransfer: true,
             allowAttendedTransfer: false,
             allowFinishTransfer: false,
@@ -96,23 +98,23 @@
           }
         : a
     );
-    
-    localStatePhone.displayCalls = newCallTransferDisplayCalls;
-    
-    if (flowRoute?.activeCall) {
-      flowRoute.activeCall.sendDTMF(`##${dialState || transferedNumber}`);
-    }
+
+    flowRoute.activeCall?.sendDTMF?.(`##${number}`);
   }
-  
+
   // Handle attended transfer
-  function handleCallAttendedTransfer(event, number) {
+  function handleCallAttendedTransfer(event: string, number?: unknown): void {
+    const target = dialState || (typeof number === 'string' ? number : '');
+    const calls = localStatePhone.displayCalls;
+    const activeId = calls[activeChannel]?.sessionId;
+
     switch (event) {
       case 'transfer':
-        const newCallTransferDisplayCalls = localStatePhone.displayCalls.map(a => 
-          a.id === activeChannel 
+        localStatePhone.displayCalls = calls.map((a: DisplayCall) =>
+          a.id === activeChannel
             ? {
                 ...a,
-                transferNumber: dialState || number,
+                transferNumber: target,
                 allowAttendedTransfer: false,
                 allowTransfer: false,
                 transferControl: true,
@@ -122,41 +124,25 @@
               }
             : a
         );
-        localStatePhone.displayCalls = newCallTransferDisplayCalls;
-        
-        if (flowRoute?.activeCall) {
-          flowRoute.activeCall.sendDTMF(`*2${dialState || number}`);
-        }
+        flowRoute.activeCall?.sendDTMF?.(`*2${target}`);
         break;
       case 'merge':
-        const newCallMergeAttendedTransferDisplayCalls = localStatePhone.displayCalls.map(
-          a => a.sessionId === localStatePhone.displayCalls[activeChannel].sessionId
-            ? {
-                ...a,
-                inTransfer: false,
-                attendedTransferOnline: ''
-              }
+        localStatePhone.displayCalls = calls.map((a: DisplayCall) =>
+          a.sessionId === activeId
+            ? { ...a, inTransfer: false, attendedTransferOnline: '' }
             : a
         );
-        localStatePhone.displayCalls = newCallMergeAttendedTransferDisplayCalls;
-        
-        if (flowRoute?.activeCall) {
-          flowRoute.activeCall.sendDTMF('*5');
-        }
+        flowRoute.activeCall?.sendDTMF?.('*5');
         break;
       case 'swap':
-        if (flowRoute?.activeCall) {
-          flowRoute.activeCall.sendDTMF('*6');
-        }
+        flowRoute.activeCall?.sendDTMF?.('*6');
         break;
       case 'finish':
-        if (flowRoute?.activeCall) {
-          flowRoute.activeCall.sendDTMF('*4');
-        }
+        flowRoute.activeCall?.sendDTMF?.('*4');
         break;
       case 'cancel':
-        const newCallCancelAttendedTransferDisplayCalls = localStatePhone.displayCalls.map(
-          a => a.sessionId === localStatePhone.displayCalls[activeChannel].sessionId
+        localStatePhone.displayCalls = calls.map((a: DisplayCall) =>
+          a.sessionId === activeId
             ? {
                 ...a,
                 inTransfer: false,
@@ -167,109 +153,98 @@
               }
             : a
         );
-        localStatePhone.displayCalls = newCallCancelAttendedTransferDisplayCalls;
-        
-        if (flowRoute?.activeCall) {
-          flowRoute.activeCall.sendDTMF('*3');
-        }
+        flowRoute.activeCall?.sendDTMF?.('*3');
         break;
       default:
         break;
     }
   }
-  
+
   // Handle settings button
-  function handleSettingsButton() {
-    if (flowRoute) {
-      flowRoute.tmpEvent();
-    }
+  function handleSettingsButton(): void {
+    flowRoute.tmpEvent();
   }
-  
+
   // Handle dark mode
-  function handleDarkMode(checked) {
-    localStatePhone = {
-      ...localStatePhone,
-      darkMode: checked
-    };
+  function handleDarkMode(checked?: unknown): void {
+    localStatePhone.darkMode = Boolean(checked);
   }
-  
+
   // Handle user presence
-  function handleUserPresence(status) {
+  function handleUserPresence(_status?: unknown): void {
     // Placeholder for user presence
   }
-  
+
   // Handle press key (dial pad)
-  function handlePressKey(key) {
-    if (dialState.length < 15) {
+  function handlePressKey(key?: unknown): void {
+    if (typeof key === 'string' && dialState.length < 15) {
       dialState += key;
     }
   }
-  
+
   // Handle launcher toggle
-  function handleLauncherToggle() {
+  function handleLauncherToggle(): void {
     // Toggle softphone visibility
   }
-  
+
   // Handle settings open
-  function handleSettingsOpen() {
+  function handleSettingsOpen(): void {
     // Open settings
   }
-  
+
   // Handle connect phone
-  function handleConnectPhone(connected) {
-    localStatePhone.connectedPhone = connected;
+  function handleConnectPhone(connected?: unknown): void {
+    localStatePhone.connectedPhone = Boolean(connected);
   }
-  
+
   // Handle connect on start
-  function handleConnectOnStart(checked) {
-    localStatePhone.connectOnStart = checked;
+  function handleConnectOnStart(checked?: unknown): void {
+    localStatePhone.connectOnStart = Boolean(checked);
   }
-  
+
   // Handle notifications
-  function handleNotifications(checked) {
-    localStatePhone.notifications = checked;
+  function handleNotifications(checked?: unknown): void {
+    localStatePhone.notifications = Boolean(checked);
   }
-  
+
   // Handle settings slider (volume)
-  function handleSettingsSlider(type, value) {
+  function handleSettingsSlider(type?: unknown, value?: unknown): void {
+    const volume = typeof value === 'number' ? value : Number(value);
     if (type === 'callVolume') {
-      localStatePhone.callVolume = value;
+      localStatePhone.callVolume = volume;
     } else if (type === 'ringVolume') {
-      localStatePhone.ringVolume = value;
+      localStatePhone.ringVolume = volume;
     }
   }
-  
+
   // Handle user presence status
-  function handleUserPresenceStatus(status) {
+  function handleUserPresenceStatus(_status?: unknown): void {
     // Update presence status
   }
-  
-  // Dial state
-  let dialState = $state('');
 </script>
 
-<SoftPhone 
-  flowRoute={flowRoute}
-  localStatePhone={localStatePhone}
-  activeChannel={activeChannel}
-  setActiveChannel={setActiveChannel}
-  handleCall={handleCall}
-  handleEndCall={handleEndCall}
-  handleHold={handleHold}
-  handleMicMute={handleMicMute}
-  handleAnswer={handleAnswer}
-  handleReject={handleReject}
-  handleCallTransfer={handleCallTransfer}
-  handleCallAttendedTransfer={handleCallAttendedTransfer}
-  handleSettingsButton={handleSettingsButton}
-  handleDarkMode={handleDarkMode}
-  handleUserPresence={handleUserPresence}
-  handlePressKey={handlePressKey}
-  handleLauncherToggle={handleLauncherToggle}
-  handleSettingsOpen={handleSettingsOpen}
-  handleConnectPhone={handleConnectPhone}
-  handleConnectOnStart={handleConnectOnStart}
-  handleNotifications={handleNotifications}
-  handleSettingsSlider={handleSettingsSlider}
-  handleUserPresenceStatus={handleUserPresenceStatus}
+<SoftPhone
+  {flowRoute}
+  {localStatePhone}
+  {activeChannel}
+  {setActiveChannel}
+  {handleCall}
+  {handleEndCall}
+  {handleHold}
+  {handleMicMute}
+  {handleAnswer}
+  {handleReject}
+  {handleCallTransfer}
+  {handleCallAttendedTransfer}
+  {handleSettingsButton}
+  {handleDarkMode}
+  {handleUserPresence}
+  {handlePressKey}
+  {handleLauncherToggle}
+  {handleSettingsOpen}
+  {handleConnectPhone}
+  {handleConnectOnStart}
+  {handleNotifications}
+  {handleSettingsSlider}
+  {handleUserPresenceStatus}
 />

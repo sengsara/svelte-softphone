@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/svelte-vite';
 import StatusBlock from '../StatusBlock.svelte';
 
-const meta: Meta<StatusBlock> = {
+const meta = {
   title: 'StatusBlock',
   component: StatusBlock,
   tags: ['autodocs'],
@@ -9,10 +9,10 @@ const meta: Meta<StatusBlock> = {
     connectingPhone: false,
     connectedPhone: false
   }
-};
+} satisfies Meta<typeof StatusBlock>;
 
 export default meta;
-type Story = StoryObj<StatusBlock>;
+type Story = StoryObj<typeof meta>;
 
 export const Connected: Story = {
   args: {

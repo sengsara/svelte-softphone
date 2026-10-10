@@ -1,37 +1,30 @@
-<script>
+<script lang="ts">
+  import type { DisplayCall } from './lib/types';
+
+  interface Props {
+    handleCall?: () => void;
+    handleEndCall?: (sessionId?: unknown) => void;
+    handleMicMute?: () => void;
+    handleHold?: (sessionId?: unknown, hold?: unknown) => void;
+    handlePressKey?: (key: string) => void;
+    activeChanel?: DisplayCall;
+  }
+
   // Props
-  let {
-    handleCall,
-    handleEndCall,
-    handleMicMute,
-    handleHold,
-    activeChanel
-  } = $props();
-  
-  let muted = $state(false);
-  let hold = $state(false);
-  let inCall = $state(false);
-  
-  // Update state from activeChanel
-  $effect(() => {
-    const channel = activeChanel || {};
-    muted = channel.muted === 1;
-    hold = channel.hold;
-    inCall = channel.inCall;
-  });
-  
-  // Expose handlePressKey to parent
-  let handlePressKey = (key) => {
-    // Handle press key action
-  };
+  let { handleCall, handleEndCall, handleMicMute, handleHold, handlePressKey, activeChanel }: Props =
+    $props();
+
+  let muted = $derived(activeChanel?.muted === 1);
+  let hold = $derived(activeChanel?.hold ?? false);
+  let inCall = $derived(activeChanel?.inCall ?? false);
 </script>
 
 <div class="flex flex-col items-center p-4 space-y-4">
   <!-- Mute Button -->
   <button
     class={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-      inCall 
-        ? 'bg-red-500 hover:bg-red-600 text-white' 
+      inCall
+        ? 'bg-red-500 hover:bg-red-600 text-white'
         : 'bg-gray-200 dark:bg-gray-700 text-gray-400'
     }`}
     disabled={!inCall}
@@ -54,11 +47,11 @@
   <button
     class={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
       inCall && !hold
-        ? 'bg-green-500 hover:bg-green-600 text-white' 
+        ? 'bg-green-500 hover:bg-green-600 text-white'
         : 'bg-gray-200 dark:bg-gray-700 text-gray-400'
     }`}
     disabled={!inCall || hold}
-    onclick={() => hold && handleHold(activeChanel.sessionId, false)}
+    onclick={() => hold && handleHold?.(activeChanel?.sessionId, false)}
     aria-label={hold ? 'Resume Call' : 'Hold Call'}
   >
     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -72,7 +65,7 @@
     {#each ['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'] as key (key)}
       <button
         class="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-700 text-2xl font-semibold text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-        onclick={() => handlePressKey(key)}
+        onclick={() => handlePressKey?.(key)}
       >
         {key}
       </button>
@@ -83,10 +76,10 @@
   <button
     class={`w-16 h-16 rounded-full flex items-center justify-center transition-all ${
       !inCall
-        ? 'bg-green-500 hover:bg-green-600 text-white' 
+        ? 'bg-green-500 hover:bg-green-600 text-white'
         : 'bg-red-500 hover:bg-red-600 text-white'
     }`}
-    onclick={inCall ? handleEndCall : handleCall}
+    onclick={() => (inCall ? handleEndCall?.(activeChanel?.sessionId) : handleCall?.())}
     aria-label={inCall ? 'End Call' : 'Make Call'}
   >
     {#if inCall}

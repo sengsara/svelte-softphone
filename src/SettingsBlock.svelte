@@ -1,4 +1,16 @@
-<script>
+<script lang="ts">
+  import type { LocalStatePhone } from './lib/types';
+
+  interface Props {
+    localStatePhone: LocalStatePhone;
+    handleConnectPhone?: (connected?: unknown) => void;
+    handleSettingsSlider?: (type?: unknown, value?: unknown) => void;
+    handleConnectOnStart?: (checked?: unknown) => void;
+    handleNotifications?: (checked?: unknown) => void;
+    handleDarkMode?: (checked?: unknown) => void;
+    handleUserPresence?: (status?: unknown) => void;
+  }
+
   // Props
   let {
     localStatePhone,
@@ -6,15 +18,16 @@
     handleSettingsSlider,
     handleConnectOnStart,
     handleNotifications,
-    handleDarkMode
-  } = $props();
+    handleDarkMode: _handleDarkMode,
+    handleUserPresence: _handleUserPresence
+  }: Props = $props();
 </script>
 
 <div class="p-3 space-y-3 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
   <!-- Connection Settings -->
   <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-3">
     <h3 class="text-sm font-medium text-gray-900 dark:text-white mb-2">Connection</h3>
-    
+
     <div class="flex items-center justify-between mb-2">
       <div class="flex items-center space-x-2">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -26,10 +39,10 @@
         type="checkbox"
         class="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
         bind:checked={localStatePhone.connectOnStart}
-        oncheckedchange={handleConnectOnStart}
+        onchange={() => handleConnectOnStart?.(localStatePhone.connectOnStart)}
       />
     </div>
-    
+
     <div class="flex items-center justify-between">
       <div class="flex items-center space-x-2">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -43,7 +56,7 @@
         type="checkbox"
         class="w-5 h-5 text-green-500 rounded focus:ring-green-500"
         bind:checked={localStatePhone.connectedPhone}
-        oncheckedchange={() => handleConnectPhone(null, true)}
+        onchange={() => handleConnectPhone?.(localStatePhone.connectedPhone)}
       />
     </div>
   </div>
@@ -51,7 +64,7 @@
   <!-- Notifications Settings -->
   <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-3">
     <h3 class="text-sm font-medium text-gray-900 dark:text-white mb-2">Notifications</h3>
-    
+
     <div class="flex items-center justify-between">
       <div class="flex items-center space-x-2">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -63,7 +76,7 @@
         type="checkbox"
         class="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
         bind:checked={localStatePhone.notifications}
-        oncheckedchange={handleNotifications}
+        onchange={() => handleNotifications?.(localStatePhone.notifications)}
       />
     </div>
   </div>
@@ -71,7 +84,7 @@
   <!-- Volume Settings -->
   <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-3">
     <h3 class="text-sm font-medium text-gray-900 dark:text-white mb-3">Volume</h3>
-    
+
     <!-- Call Audio Volume -->
     <div class="mb-4">
       <div class="flex items-center justify-between mb-1">
@@ -89,11 +102,11 @@
         max="1"
         step="0.05"
         class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
-        bind:value={localStatePhone.callVolume}
-        oninput={(e) => handleSettingsSlider('callVolume', parseFloat(e.target.value))}
+        value={localStatePhone.callVolume}
+        oninput={(e) => handleSettingsSlider?.('callVolume', e.currentTarget.valueAsNumber)}
       />
     </div>
-    
+
     <!-- Ringtone Volume -->
     <div>
       <div class="flex items-center justify-between mb-1">
@@ -111,8 +124,8 @@
         max="1"
         step="0.05"
         class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
-        bind:value={localStatePhone.ringVolume}
-        oninput={(e) => handleSettingsSlider('ringVolume', parseFloat(e.target.value))}
+        value={localStatePhone.ringVolume}
+        oninput={(e) => handleSettingsSlider?.('ringVolume', e.currentTarget.valueAsNumber)}
       />
     </div>
   </div>

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/svelte-vite';
 import CallQueue from '../CallQueue.svelte';
 
-const meta: Meta<CallQueue> = {
+const meta = {
   title: 'CallQueue',
   component: CallQueue,
   tags: ['autodocs'],
@@ -32,12 +32,12 @@ const meta: Meta<CallQueue> = {
         muted: 0
       }
     ],
-    handleAnswer: (sessionId: string) => console.log('Answered:', sessionId),
-    handleReject: (sessionId: string) => console.log('Rejected:', sessionId)
+    handleAnswer: (sessionId: unknown) => console.log('Answered:', sessionId),
+    handleReject: (sessionId: unknown) => console.log('Rejected:', sessionId)
   }
-};
+} satisfies Meta<typeof CallQueue>;
 
 export default meta;
-type Story = StoryObj<CallQueue>;
+type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};

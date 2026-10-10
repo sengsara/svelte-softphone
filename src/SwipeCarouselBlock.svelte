@@ -1,13 +1,26 @@
-<script>
+<script lang="ts">
+  import type { LocalStatePhone } from './lib/types';
+
+  interface DurationState {
+    callDuration: number;
+    callDurationIntrId: number;
+    callDurationActive: boolean;
+    ringDuration: number;
+    ringDurationIntrId: number;
+    ringDurationActive: boolean;
+  }
+
+  interface Props {
+    localStatePhone: LocalStatePhone;
+    activeChannel: number;
+    setActiveChannel: (channel: number) => void;
+  }
+
   // Props
-  let {
-    localStatePhone,
-    activeChannel,
-    setActiveChannel
-  } = $props();
+  let { localStatePhone, activeChannel, setActiveChannel }: Props = $props();
   
   // Duration tracking state
-  let durations = $state([
+  let durations = $state<DurationState[]>([
     {
       callDuration: 0,
       callDurationIntrId: 0,
@@ -42,6 +55,8 @@
     const interval = setInterval(() => {
       for (let i = 0; i < displayCalls.length; i++) {
         const displayCall = displayCalls[i];
+        const duration = durations[i];
+        if (!duration) continue;
         if (displayCall.inCall) {
           if (!displayCall.inAnswer && !durations[i].ringDurationActive) {
             durations[i].ringDuration += 1;
@@ -63,7 +78,7 @@
     return () => clearInterval(interval);
   });
   
-  function formatTime(seconds) {
+  function formatTime(seconds?: number): string {
     if (seconds === 0 || seconds === undefined) return '0:00';
     const minutes = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);

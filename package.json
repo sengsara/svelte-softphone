@@ -6,7 +6,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "check": "svelte-check --tsconfig-path tsconfig.json",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
     "storybook": "storybook dev -p 6006",

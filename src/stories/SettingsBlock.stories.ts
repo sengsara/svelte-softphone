@@ -1,17 +1,19 @@
 import type { Meta, StoryObj } from '@storybook/svelte-vite';
 import SettingsBlock from '../SettingsBlock.svelte';
 
-const meta: Meta<SettingsBlock> = {
+const meta = {
   title: 'SettingsBlock',
   component: SettingsBlock,
   tags: ['autodocs'],
   args: {
     localStatePhone: {
+      displayCalls: [],
       connectedPhone: false,
       connectOnStart: false,
       notifications: true,
-      callVolume: 50,
-      ringVolume: 50
+      darkMode: false,
+      callVolume: 0.5,
+      ringVolume: 0.5
     },
     handleConnectPhone: () => {},
     handleSettingsSlider: () => {},
@@ -20,9 +22,9 @@ const meta: Meta<SettingsBlock> = {
     handleDarkMode: () => console.log('Dark mode'),
     handleUserPresence: () => {}
   }
-};
+} satisfies Meta<typeof SettingsBlock>;
 
 export default meta;
-type Story = StoryObj<SettingsBlock>;
+type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};

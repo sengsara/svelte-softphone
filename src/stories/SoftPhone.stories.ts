@@ -1,18 +1,18 @@
 import type { Meta, StoryObj } from '@storybook/svelte-vite';
 import SoftPhone from '../SoftPhone.svelte';
 
-const meta: Meta<SoftPhone> = {
+const meta = {
   title: 'SoftPhone',
   component: SoftPhone,
   tags: ['autodocs'],
   args: {
-    flowRoute: null,
     localStatePhone: {
       connectedPhone: false,
       connectOnStart: false,
       notifications: true,
-      callVolume: 50,
-      ringVolume: 50,
+      darkMode: false,
+      callVolume: 0.5,
+      ringVolume: 0.5,
       displayCalls: [
         {
           id: 1,
@@ -27,7 +27,7 @@ const meta: Meta<SoftPhone> = {
           muted: 0,
           inTransfer: false,
           transferNumber: '',
-          attendedTransferOnline: [],
+          attendedTransferOnline: '',
           inConference: false,
           callDuration: 0,
           ringDuration: 0
@@ -56,9 +56,9 @@ const meta: Meta<SoftPhone> = {
     handleSettingsSlider: () => {},
     handleUserPresenceStatus: () => {}
   }
-};
+} satisfies Meta<typeof SoftPhone>;
 
 export default meta;
-type Story = StoryObj<SoftPhone>;
+type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/svelte-vite';
 import KeypadBlock from '../KeypadBlock.svelte';
 
-const meta: Meta<KeypadBlock> = {
+const meta = {
   title: 'KeypadBlock',
   component: KeypadBlock,
   tags: ['autodocs'],
@@ -10,7 +10,9 @@ const meta: Meta<KeypadBlock> = {
     handleEndCall: () => console.log('Call ended'),
     handleMicMute: () => console.log('Mic muted'),
     handleHold: () => console.log('Call held'),
+    handlePressKey: (key: string) => console.log('Key pressed:', key),
     activeChanel: {
+      id: 1,
       sessionId: '123',
       callNumber: '+1234567890',
       callInfo: 'Active Call',
@@ -22,9 +24,9 @@ const meta: Meta<KeypadBlock> = {
       muted: 0
     }
   }
-};
+} satisfies Meta<typeof KeypadBlock>;
 
 export default meta;
-type Story = StoryObj<KeypadBlock>;
+type Story = StoryObj<typeof meta>;
 
 export const ActiveCall: Story = {};

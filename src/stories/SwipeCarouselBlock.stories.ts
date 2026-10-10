@@ -1,12 +1,18 @@
 import type { Meta, StoryObj } from '@storybook/svelte-vite';
 import SwipeCarouselBlock from '../SwipeCarouselBlock.svelte';
 
-const meta: Meta<SwipeCarouselBlock> = {
+const meta = {
   title: 'SwipeCarouselBlock',
   component: SwipeCarouselBlock,
   tags: ['autodocs'],
   args: {
     localStatePhone: {
+      connectedPhone: true,
+      connectOnStart: false,
+      notifications: true,
+      darkMode: false,
+      callVolume: 0.5,
+      ringVolume: 0.5,
       displayCalls: [
         {
           id: 1,
@@ -21,7 +27,7 @@ const meta: Meta<SwipeCarouselBlock> = {
           muted: 0,
           inTransfer: false,
           transferNumber: '',
-          attendedTransferOnline: [],
+          attendedTransferOnline: '',
           inConference: false,
           callDuration: 120,
           ringDuration: 0
@@ -31,9 +37,9 @@ const meta: Meta<SwipeCarouselBlock> = {
     activeChannel: 0,
     setActiveChannel: () => {}
   }
-};
+} satisfies Meta<typeof SwipeCarouselBlock>;
 
 export default meta;
-type Story = StoryObj<SwipeCarouselBlock>;
+type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};

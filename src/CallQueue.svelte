@@ -1,39 +1,44 @@
-<script>
+<script lang="ts">
+  import type { DisplayCall } from './lib/types';
+
+  interface Props {
+    calls?: DisplayCall[];
+    handleAnswer?: (sessionId?: unknown) => void;
+    handleReject?: (sessionId?: unknown) => void;
+  }
+
   // Props
-  let {
-    calls,
-    handleAnswer,
-    handleReject
-  } = $props();
+  let { calls = [], handleAnswer, handleReject }: Props = $props();
 </script>
 
 <div class="space-y-2">
   {#each calls as call (call.sessionId)}
+    {@const parts = (call.callNumber ?? '').split('-')}
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-3">
       <div class="mb-2 pb-1 border-b border-gray-200 dark:border-gray-700">
         {#if call.callNumber}
           <div class="flex items-center mb-1">
             <span class="text-base font-medium text-gray-900 dark:text-white">Caller:</span>
             <span class="ml-1 font-semibold text-blue-600 dark:text-blue-400">
-              {call.callNumber.split('-')[0]}
+              {parts[0]}
             </span>
           </div>
         {/if}
-        
-        {#if call.callNumber.split('-')[1]}
+
+        {#if parts[1]}
           <div class="mb-1">
             <span class="text-sm text-gray-600 dark:text-gray-400">Jurisdiction:</span>
             <span class="ml-0.5 font-medium">
-              {call.callNumber.split('-')[1]}
+              {parts[1]}
             </span>
           </div>
         {/if}
-        
-        {#if call.callNumber.split('-')[2]}
+
+        {#if parts[2]}
           <div>
             <span class="text-sm text-gray-600 dark:text-gray-400">Company Number:</span>
             <span class="ml-0.5 font-medium">
-              {call.callNumber.split('-')[2]}
+              {parts[2]}
             </span>
           </div>
         {/if}
@@ -42,7 +47,7 @@
       <div class="flex justify-between items-center mt-2">
         <button
           class="w-12 h-12 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center justify-center transition-transform hover:scale-105"
-          onclick={() => handleAnswer(call)}
+          onclick={() => handleAnswer?.(call.sessionId)}
           aria-label="Answer Call"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -51,7 +56,7 @@
         </button>
         <button
           class="w-12 h-12 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-transform hover:scale-105"
-          onclick={() => handleReject(call)}
+          onclick={() => handleReject?.(call.sessionId)}
           aria-label="Reject Call"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -61,7 +66,7 @@
       </div>
     </div>
   {/each}
-  
+
   {#if calls.length === 0}
     <div class="text-center text-gray-500 dark:text-gray-400 py-8">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-2 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
