@@ -4,6 +4,7 @@
   "type": "module",
   "description": "A modern, self-contained Svelte 5 softphone component package built on JsSIP for reliable WebRTC/VoIP calling.",
   "license": "ISC",
+  "packageManager": "pnpm@10.12.4",
   "svelte": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -27,10 +28,10 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "npm run build:package && npm run build:css",
+    "build": "pnpm run build:package && pnpm run build:css",
     "build:package": "svelte-package -i src/lib -o dist",
     "build:css": "tailwindcss -i ./src/lib/tailwind.css -o ./dist/style.css --minify",
-    "prepack": "npm run build",
+    "prepack": "pnpm run build",
     "dev": "storybook dev -p 6006",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
@@ -41,13 +42,9 @@
     "e2e:headed": "playwright test --headed",
     "e2e:ui": "playwright test --ui",
     "e2e:install": "playwright install chromium",
-    "test": "npm run lint && npm run check && npm run e2e",
+    "test": "pnpm run lint && pnpm run check && pnpm run e2e",
     "publint": "publint"
   },
-  "workspaces": [
-    "examples/*",
-    "e2e/app"
-  ],
   "peerDependencies": {
     "jssip": "^3.13.8",
     "svelte": "^5.0.0"
@@ -76,7 +73,7 @@
     "globals": "^17.6.0",
     "jiti": "^2.7.0",
     "jssip": "^3.13.8",
-    "playwright": "^1.60.0",
+    "playwright": "1.60.0",
     "publint": "^0.3.4",
     "storybook": "^10.4.2",
     "svelte": "^5.0.0",

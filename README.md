@@ -32,13 +32,13 @@ floating launcher.
 ## 📦 Installation
 
 ```bash
-npm install @sengsara/svelte-softphone
+pnpm add @sengsara/svelte-softphone
 ```
 
 `jssip` and `svelte` are peer dependencies:
 
 ```bash
-npm install jssip
+pnpm add jssip
 ```
 
 ## 🚀 Usage
@@ -169,28 +169,28 @@ your Tailwind source scan instead:
 ## 🛠 Development
 
 ```bash
-npm install
+pnpm install
 
 # Build the package (svelte-package + Tailwind CSS)
-npm run build
+pnpm run build
 
 # Storybook (component docs)
-npm run storybook
+pnpm run storybook
 
 # Static checks
-npm run check
-npm run lint
+pnpm run check
+pnpm run lint
 
 # End-to-end tests (builds the package, boots e2e/app)
-npm run e2e
+pnpm run e2e
 ```
 
-Examples live in npm workspaces and consume the built package:
+Examples live in pnpm workspaces and consume the built package:
 
 ```bash
-npm run build
-npm run dev -w @sengsara/svelte-softphone-example-svelte
-npm run dev -w @sengsara/svelte-softphone-example-sveltekit
+pnpm run build
+pnpm --filter @sengsara/svelte-softphone-example-svelte dev
+pnpm --filter @sengsara/svelte-softphone-example-sveltekit dev
 ```
 
 ## 🧪 Testing
@@ -203,9 +203,9 @@ mute, hold/resume, blind and attended transfer, settings, status indicators, and
 the channel carousel.
 
 ```bash
-npm run e2e:install   # one-time: install Chromium
-npm run e2e           # run the suite
-npm run e2e:ui        # interactive mode
+pnpm run e2e:install   # one-time: install Chromium
+pnpm run e2e           # run the suite
+pnpm run e2e:ui        # interactive mode
 ```
 
 ## 🚢 Releasing

@@ -24,7 +24,7 @@ export default defineConfig({
   ],
   webServer: {
     command:
-      'npm run build && npm run dev -w @sengsara/svelte-softphone-e2e-app',
+      'pnpm run build && pnpm --filter @sengsara/svelte-softphone-e2e-app dev',
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000

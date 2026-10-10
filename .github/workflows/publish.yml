@@ -20,29 +20,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
+          cache: pnpm
           registry-url: https://registry.npmjs.org
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: pnpm install --frozen-lockfile
 
       - name: Verify (lint, types, e2e)
         run: |
-          npm run lint
-          npm run check
-          npx playwright install --with-deps chromium
-          npm run e2e
+          pnpm run lint
+          pnpm run check
+          pnpm -r --if-present run check
+          pnpm exec playwright install --with-deps chromium
+          pnpm run e2e
 
       - name: Build package
-        run: npm run build
+        run: pnpm run build
 
       - name: Validate package
-        run: npx publint
+        run: pnpm exec publint
 
       - name: Publish to npm
-        run: npm publish --access public --provenance
+        run: pnpm publish --access public --provenance --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
